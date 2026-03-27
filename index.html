@@ -196,16 +196,38 @@ let state = {
 // ===== API呼び出し =====
 function callGAS(func, params) {
   return new Promise(function(resolve, reject) {
-    const url = GAS_URL + '?func=' + func + (params ? '&params=' + encodeURIComponent(JSON.stringify(params)) : '');
-    fetch(url)
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.error) reject(new Error(data.error));
-        else resolve(data.result);
-      })
-      .catch(reject);
+    const callbackName = 'gasCallback_' + Date.now();
+    const script = document.createElement('script');
+    const url = GAS_URL + '?func=' + func + 
+      '&callback=' + callbackName +
+      (params ? '&params=' + encodeURIComponent(JSON.stringify(params)) : '');
+    
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if (data.error) reject(new Error(data.error));
+      else resolve(data.result);
+    };
+    
+    script.onerror = function() {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      reject(new Error('通信エラー'));
+    };
+    
+    setTimeout(function() {
+      if (window[callbackName]) {
+        delete window[callbackName];
+        if (document.body.contains(script)) document.body.removeChild(script);
+        reject(new Error('タイムアウト'));
+      }
+    }, 30000);
+    
+    script.src = url;
+    document.body.appendChild(script);
   });
 }
+  
 
 // ===== LOGIN =====
 function doLogin() {
