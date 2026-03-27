@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新人教育進捗管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4fa;
+    --surface: #ffffff;
+    --surface2: #f5f7fc;
+    --border: #dde3f0;
+    --accent: #2563eb;
+    --accent2: #7c3aed;
+    --green: #16a34a;
+    --yellow: #d97706;
+    --red: #dc2626;
+    --text: #1e2340;
+    --text2: #4b5680;
+    --text3: #8b96b8;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); font-size: 1rem; min-height: 100vh; }
+
+  /* ===== LOGIN ===== */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(30,35,64,0.08); }
+  .login-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .login-sub { font-size: 0.8rem; color: var(--text3); margin-bottom: 28px; }
+  .login-field { margin-bottom: 16px; }
+  .login-label { font-size: 0.75rem; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: block; }
+  .login-input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 1rem; font-family: 'Noto Sans JP', sans-serif; background: var(--surface2); color: var(--text); }
+  .login-input:focus { outline: none; border-color: var(--accent); }
+  .login-btn { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 600; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; margin-top: 8px; }
+  .login-btn:disabled { background: var(--text3); }
+  .login-error { color: var(--red); font-size: 0.8rem; margin-top: 10px; text-align: center; }
+
+  /* ===== HEADER ===== */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  .header-title { font-size: 0.95rem; font-weight: 700; }
+  .header-title span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .role-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+  .role-trainer { background: rgba(37,99,235,0.1); color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
+  .role-manager { background: rgba(124,58,237,0.1); color: var(--accent2); border: 1px solid rgba(124,58,237,0.2); }
+  .role-new { background: rgba(22,163,74,0.1); color: var(--green); border: 1px solid rgba(22,163,74,0.2); }
+  .logout-btn { font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+
+  /* ===== MAIN ===== */
+  .main { padding: 16px; max-width: 900px; margin: 0 auto; }
+
+  /* ===== TRAINEE BAR ===== */
+  .trainee-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .trainee-label { font-size: 0.85rem; color: var(--text2); }
+  .trainee-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
+  .trainee-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+
+  /* ===== STATS ===== */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .section-title { font-size: 1.1rem; font-weight: 700; }
+  .section-stats { display: flex; gap: 16px; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.65rem; color: var(--text3); }
+  .progress-wrap { background: var(--surface2); border-radius: 4px; height: 8px; margin-bottom: 20px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width 0.5s; }
+
+  /* ===== CATEGORY ===== */
+  .category-block { margin-bottom: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(30,35,64,0.06); }
+  .category-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+  .category-head-left { display: flex; align-items: center; gap: 8px; }
+  .category-name { font-size: 0.95rem; font-weight: 600; }
+  .category-count { font-size: 0.75rem; color: var(--text3); }
+  .category-chevron { color: var(--text3); transition: transform 0.2s; font-size: 0.75rem; }
+  .category-chevron.open { transform: rotate(180deg); }
+  .category-mini-bar { width: 60px; background: var(--surface2); border-radius: 3px; height: 4px; overflow: hidden; }
+  .category-mini-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+  /* ===== ITEM ===== */
+  .item-row { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .item-row:last-child { border-bottom: none; }
+  .item-name-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .item-name { font-size: 0.9rem; font-weight: 500; }
+  .status-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
+  .item-checks { display: flex; gap: 10px; }
+  .check-col { flex: 1; background: var(--surface2); border-radius: 8px; padding: 12px; }
+  .check-col-label { font-size: 0.7rem; font-weight: 700; color: var(--text3); margin-bottom: 10px; }
+  .taught-check { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; margin-bottom: 10px; }
+  .check-box { width: 44px; height: 44px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.15s; flex-shrink: 0; }
+  .taught-check.checked .check-box { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .taught-check.checked.retaught .check-box { background: var(--accent2); border-color: var(--accent2); }
+  .taught-date-label { font-size: 0.8rem; color: var(--text3); }
+  .taught-check.checked .taught-date-label { color: var(--accent); font-weight: 500; }
+  .taught-check.checked.retaught .taught-date-label { color: var(--accent2); }
+  .grade-select { display: flex; gap: 6px; flex-wrap: wrap; }
+  .grade-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--text3); font-family: 'Noto Sans JP', sans-serif; }
+  .grade-btn.active-A { background: rgba(22,163,74,0.15); border-color: var(--green); color: var(--green); }
+  .grade-btn.active-B { background: rgba(37,99,235,0.15); border-color: var(--accent); color: var(--accent); }
+  .grade-btn.active-C { background: rgba(217,119,6,0.15); border-color: var(--yellow); color: var(--yellow); }
+  .grade-btn.active-D { background: rgba(220,38,38,0.15); border-color: var(--red); color: var(--red); }
+
+  /* ===== LEGEND ===== */
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: var(--surface2); border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text2); }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ===== OVERVIEW ===== */
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .overview-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 4px rgba(30,35,64,0.06); }
+  .overview-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .overview-pct-big { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+  .overview-sections { display: flex; flex-direction: column; gap: 6px; }
+  .overview-row { display: flex; align-items: center; gap: 8px; }
+  .overview-name { font-size: 0.7rem; color: var(--text2); width: 80px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .overview-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .overview-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; }
+  .overview-pct { font-size: 0.7rem; color: var(--text3); width: 28px; text-align: right; }
+
+  /* ===== VIEW TABS ===== */
+  .view-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
+  .view-tab { padding: 8px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
+  .view-tab.active { background: var(--accent); color: #fff; font-weight: 500; }
+
+  /* ===== LOADING ===== */
+  .loading { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 0.85rem; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== TOAST ===== */
+  .toast { position: fixed; bottom: 20px; right: 16px; left: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; font-size: 0.85rem; color: var(--text); opacity: 0; transform: translateY(10px); transition: all 0.2s; z-index: 999; pointer-events: none; box-shadow: 0 4px 16px rgba(30,35,64,0.1); text-align: center; max-width: 400px; margin: 0 auto; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.error { border-left: 3px solid var(--red); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .overview-grid { grid-template-columns: 1fr; }
+    .view-tabs { width: 100%; }
+    .view-tab { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-title">📋 新人教育進捗管理</div>
+    <div class="login-sub">社員番号とパスワードでログインしてください</div>
+    <div class="login-field">
+      <label class="login-label">社員番号</label>
+      <input type="text" id="inputStaffId" class="login-input" placeholder="例：1001" inputmode="numeric">
+    </div>
+    <div class="login-field">
+      <label class="login-label">パスワード</label>
+      <input type="password" id="inputPassword" class="login-input" placeholder="パスワード">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">ログイン</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="appScreen" style="display:none;">
+  <div class="header">
+    <div class="header-title">📋 <span>新人教育</span>進捗管理</div>
+    <div class="header-right">
+      <span id="userNameLabel" style="font-size:0.75rem;color:var(--text2);"></span>
+      <span id="roleBadge" class="role-badge"></span>
+      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+    </div>
+  </div>
+  <div class="main" id="main">
+    <div class="loading"><div class="spinner"></div>読み込み中...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== GASのAPIのURL（後で変更） =====
+const GAS_URL = 'YOUR_GAS_URL_HERE';
+
+let state = {
+  user: null,
+  currentTrainee: null,
+  categories: [],
+  trainees: [],
+  data: {},
+  view: 'detail',
+  openCategories: new Set()
+};
+
+// ===== API呼び出し =====
+function callGAS(func, params) {
+  return new Promise(function(resolve, reject) {
+    const url = GAS_URL + '?func=' + func + (params ? '&params=' + encodeURIComponent(JSON.stringify(params)) : '');
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) reject(new Error(data.error));
+        else resolve(data.result);
+      })
+      .catch(reject);
+  });
+}
+
+// ===== LOGIN =====
+function doLogin() {
+  const staffId = document.getElementById('inputStaffId').value.trim();
+  const password = document.getElementById('inputPassword').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  if (!staffId || !password) { err.textContent = '社員番号とパスワードを入力してください'; return; }
+  btn.disabled = true; btn.textContent = 'ログイン中...'; err.textContent = '';
+
+  callGAS('login', { staffId: staffId, password: password })
+    .then(function(result) {
+      btn.disabled = false; btn.textContent = 'ログイン';
+      if (result.success) {
+        state.user = result;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appScreen').style.display = 'block';
+        initApp();
+      } else {
+        err.textContent = '社員番号またはパスワードが違います';
+      }
+    })
+    .catch(function(e) {
+      btn.disabled = false; btn.textContent = 'ログイン';
+      err.textContent = 'エラー: ' + e.message;
+    });
+}
+
+document.getElementById('inputPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  state = { user: null, currentTrainee: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set() };
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('inputStaffId').value = '';
+  document.getElementById('inputPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+function initApp() {
+  const roleLabels = { '新人': '新人', '教育係': '教育係', '店長': '店長', '管理職': '管理職' };
+  const roleClasses = { '新人': 'role-new', '教育係': 'role-trainer', '店長': 'role-manager', '管理職': 'role-manager' };
+  document.getElementById('userNameLabel').textContent = state.user.name;
+  document.getElementById('roleBadge').textContent = roleLabels[state.user.role] || state.user.role;
+  document.getElementById('roleBadge').className = 'role-badge ' + (roleClasses[state.user.role] || 'role-trainer');
+
+  callGAS('getCategories')
+    .then(function(cats) {
+      state.categories = cats;
+      if (cats.length > 0) { state.currentCategory = cats[0].id; state.openCategories.add(cats[0].id); }
+      return loadTraineesAndData();
+    })
+    .catch(showError);
+}
+
+function loadTraineesAndData() {
+  const role = state.user.role;
+  if (role === '新人') {
+    state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name }];
+    state.currentTrainee = state.user.traineeId;
+    return callGAS('getProgress', { traineeId: state.user.traineeId })
+      .then(function(progress) { state.data[state.user.traineeId] = progress; render(); });
+  } else {
+    return callGAS('getTrainees')
+      .then(function(trainees) {
+        state.trainees = trainees;
+        if (trainees.length > 0) state.currentTrainee = trainees[0].traineeId;
+        if (role === '店長' || role === '管理職') {
+          return callGAS('getAllProgress')
+            .then(function(allData) { state.data = allData; render(); });
+        } else {
+          if (state.currentTrainee) {
+            return callGAS('getProgress', { traineeId: state.currentTrainee })
+              .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
+          } else { render(); }
+        }
+      });
+  }
+}
+
+function getRecord(traineeId, itemId) {
+  if (!state.data[traineeId]) state.data[traineeId] = {};
+  if (!state.data[traineeId][itemId]) state.data[traineeId][itemId] = { taughtDate: '', grade: '', retaughtDate: '', grade2: '' };
+  return state.data[traineeId][itemId];
+}
+
+function getCategoryProgress(traineeId, catId) {
+  const cat = state.categories.find(function(c) { return c.id === catId; });
+  if (!cat) return { taught: 0, total: 0 };
+  let taught = 0;
+  cat.items.forEach(function(item) { if (getRecord(traineeId, item.id).taughtDate) taught++; });
+  return { taught, total: cat.items.length };
+}
+
+function getTotalProgress(traineeId) {
+  let taught = 0, total = 0;
+  state.categories.forEach(function(cat) { const p = getCategoryProgress(traineeId, cat.id); taught += p.taught; total += p.total; });
+  return { taught, total };
+}
+
+function render() { renderMain(); }
+
+function renderMain() {
+  const role = state.user.role;
+  const isManager = role === '店長' || role === '管理職';
+  const isNew = role === '新人';
+  const canEdit = role === '教育係';
+  let html = '';
+
+  if (!isNew) {
+    html += '<div class="trainee-bar"><span class="trainee-label">新人：</span>';
+    state.trainees.forEach(function(t) {
+      html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>';
+    });
+    html += '</div>';
+  }
+
+  if (isManager) {
+    html += '<div class="view-tabs">';
+    html += '<button class="view-tab ' + (state.view === 'overview' ? 'active' : '') + '" onclick="setView(\'overview\')">📊 全体一覧</button>';
+    html += '<button class="view-tab ' + (state.view === 'detail' ? 'active' : '') + '" onclick="setView(\'detail\')">📋 詳細</button>';
+    html += '</div>';
+  }
+
+  if (isManager && state.view === 'overview') {
+    html += renderOverview();
+  } else {
+    html += renderDetail(canEdit);
+  }
+
+  document.getElementById('main').innerHTML = html;
+}
+
+function renderOverview() {
+  let html = '<div class="overview-grid">';
+  state.trainees.forEach(function(t) {
+    const total = getTotalProgress(t.traineeId);
+    const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
+    html += '<div class="overview-card"><div class="overview-card-name">' + t.name + '<span class="overview-pct-big">' + pct + '%</span></div>';
+    html += '<div class="progress-wrap" style="margin-bottom:10px"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
+    html += '<div class="overview-sections">';
+    state.categories.forEach(function(cat) {
+      const p = getCategoryProgress(t.traineeId, cat.id);
+      const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
+      html += '<div class="overview-row"><span class="overview-name">' + cat.name + '</span><div class="overview-bar"><div class="overview-bar-fill" style="width:' + cpct + '%"></div></div><span class="overview-pct">' + cpct + '%</span></div>';
+    });
+    html += '</div></div>';
+  });
+  return html + '</div>';
+}
+
+function renderDetail(canEdit) {
+  if (!state.currentTrainee) return '<div class="loading">新人が登録されていません</div>';
+  const traineeId = state.currentTrainee;
+  const total = getTotalProgress(traineeId);
+  const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
+  const traineeName = (state.trainees.find(function(t) { return t.traineeId === traineeId; }) || {}).name || '';
+  const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
+
+  let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の進捗</div>';
+  html += '<div class="section-stats"><div class="stat-item"><div class="stat-num">' + pct + '%</div><div class="stat-label">指導済み</div></div>';
+  html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
+  html += '<div class="progress-wrap"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
+
+  state.categories.forEach(function(cat) {
+    const isOpen = state.openCategories.has(cat.id);
+    const p = getCategoryProgress(traineeId, cat.id);
+    const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
+
+    html += '<div class="category-block"><div class="category-head" onclick="toggleCategory(\'' + cat.id + '\')">';
+    html += '<div class="category-head-left"><span class="category-chevron ' + (isOpen ? 'open' : '') + '">▼</span>';
+    html += '<span class="category-name">' + cat.name + '</span><span class="category-count">' + p.taught + '/' + p.total + '</span></div>';
+    html += '<div style="display:flex;align-items:center;gap:8px"><div class="category-mini-bar"><div class="category-mini-fill" style="width:' + cpct + '%"></div></div>';
+    html += '<span style="font-size:0.7rem;color:var(--text3)">' + cpct + '%</span></div></div>';
+
+    if (isOpen) {
+      cat.items.forEach(function(item) {
+        const rec = getRecord(traineeId, item.id);
+        const status = rec.retaughtDate ? 'done' : rec.taughtDate ? 'taught' : 'none';
+        const statusLabel = status === 'done' ? '再指導済み' : status === 'taught' ? '指導済み' : '';
+        const statusStyle = status === 'done'
+          ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
+          : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
+
+        html += '<div class="item-row"><div class="item-name-wrap"><span class="item-name">' + item.name + '</span>';
+        if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
+        html += '</div><div class="item-checks">';
+
+        // 1回目
+        html += '<div class="check-col"><div class="check-col-label">1回目指導</div>';
+        if (canEdit) {
+          html += '<label class="taught-check ' + (rec.taughtDate ? 'checked' : '') + '" onclick="toggleTaught(\'' + traineeId + '\',\'' + item.id + '\')">';
+          html += '<div class="check-box">' + (rec.taughtDate ? '✓' : '') + '</div>';
+          html += '<span class="taught-date-label">' + (rec.taughtDate || '未指導') + '</span></label>';
+          html += '<div class="grade-select">';
+          ['A','B','C','D'].forEach(function(g) {
+            html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</div>';
+          html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</div>';
+        }
+        html += '</div>';
+
+        // 再指導
+        html += '<div class="check-col"><div class="check-col-label">再指導</div>';
+        if (canEdit) {
+          html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
+          html += '<div class="check-box" style="' + (rec.retaughtDate ? 'background:var(--accent2);border-color:var(--accent2)' : '') + '">' + (rec.retaughtDate ? '✓' : '') + '</div>';
+          html += '<span class="taught-date-label" style="' + (rec.retaughtDate ? 'color:var(--accent2)' : '') + '">' + (rec.retaughtDate || '未実施') + '</span></label>';
+          html += '<div class="grade-select">';
+          ['A','B','C','D'].forEach(function(g) {
+            html += '<button class="grade-btn ' + (rec.grade2 === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade2\',\'' + (rec.grade2 === g ? '' : g) + '\')">' + g + '</button>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</div>';
+          html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</div>';
+        }
+        html += '</div></div></div>';
+      });
+
+      html += '<div class="legend">';
+      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：1人で実践できる</span>';
+      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：援助があれば実践できる</span>';
+      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
+      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectTrainee(traineeId) {
+  state.currentTrainee = traineeId;
+  if (!state.data[traineeId]) {
+    document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
+    callGAS('getProgress', { traineeId: traineeId })
+      .then(function(progress) { state.data[traineeId] = progress; render(); })
+      .catch(showError);
+  } else { render(); }
+}
+
+function toggleCategory(id) {
+  state.openCategories.has(id) ? state.openCategories.delete(id) : state.openCategories.add(id);
+  render();
+}
+
+function setView(v) { state.view = v; render(); }
+
+function toggleTaught(traineeId, itemId) {
+  const rec = getRecord(traineeId, itemId);
+  const value = rec.taughtDate ? '' : todayStr();
+  rec.taughtDate = value; render();
+  saveField(traineeId, itemId, 'taughtDate', value);
+}
+
+function toggleRetaught(traineeId, itemId) {
+  const rec = getRecord(traineeId, itemId);
+  const value = rec.retaughtDate ? '' : todayStr();
+  rec.retaughtDate = value; render();
+  saveField(traineeId, itemId, 'retaughtDate', value);
+}
+
+function updateField(traineeId, itemId, field, value) {
+  const rec = getRecord(traineeId, itemId);
+  rec[field] = value; render();
+  saveField(traineeId, itemId, field, value);
+}
+
+function saveField(traineeId, itemId, field, value) {
+  callGAS('saveProgress', { traineeId: traineeId, itemId: itemId, field: field, value: value })
+    .then(function() { showToast('保存しました ✓', 'success'); })
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + (type || 'success') + ' show';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(function() { t.className = 'toast'; }, 2000);
+}
+
+function showError(e) {
+  document.getElementById('main').innerHTML = '<div class="loading" style="color:var(--red)">エラー: ' + (e ? e.message : '不明') + '</div>';
+}
+</script>
+</body>
+</html>
