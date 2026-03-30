@@ -96,8 +96,8 @@
   .taught-date-label { font-size: 0.8rem; color: var(--text3); }
   .taught-check.checked .taught-date-label { color: var(--accent); font-weight: 500; }
   .taught-check.checked.retaught .taught-date-label { color: var(--accent2); }
-  .grade-select { display: flex; gap: 6px; flex-wrap: wrap; }
-  .grade-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--text3); font-family: 'Noto Sans JP', sans-serif; }
+  .grade-select { display: flex; gap: 5px; flex-wrap: nowrap; }
+  .grade-btn { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--text3); font-family: 'Noto Sans JP', sans-serif; }
   .grade-btn.active-A { background: rgba(22,163,74,0.15); border-color: var(--green); color: var(--green); }
   .grade-btn.active-B { background: rgba(37,99,235,0.15); border-color: var(--accent); color: var(--accent); }
   .grade-btn.active-C { background: rgba(217,119,6,0.15); border-color: var(--yellow); color: var(--yellow); }
@@ -136,12 +136,31 @@
   .toast.success { border-left: 3px solid var(--green); }
   .toast.error { border-left: 3px solid var(--red); }
 
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 600px) {
-    .overview-grid { grid-template-columns: 1fr; }
-    .view-tabs { width: 100%; }
-    .view-tab { flex: 1; text-align: center; }
-  }
+/* ===== LAYOUT ===== */
+.app-layout { display: flex; min-height: calc(100vh - 52px); }
+.sidebar {
+  width: 200px; flex-shrink: 0;
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 16px 12px; position: sticky; top: 52px;
+  height: calc(100vh - 52px); overflow-y: auto;
+}
+.sidebar-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; padding: 0 8px; margin-bottom: 8px; display: block; }
+.sidebar-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: var(--text2); font-size: 12px; transition: all 0.15s; }
+.sidebar-item:hover { background: var(--surface2); color: var(--text); }
+.sidebar-item.active { background: rgba(37,99,235,0.08); color: var(--accent); }
+.sidebar-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.sidebar-item.active .sidebar-dot { background: var(--accent); }
+.sidebar-progress { margin-left: auto; font-size: 10px; color: var(--text3); }
+.sidebar-item.active .sidebar-progress { color: var(--accent); }
+.main-content { flex: 1; overflow-y: auto; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .sidebar { display: none; }
+  .overview-grid { grid-template-columns: 1fr; }
+  .view-tabs { width: 100%; }
+  .view-tab { flex: 1; text-align: center; }
+}
 </style>
 </head>
 <body>
@@ -172,8 +191,16 @@
       <button class="logout-btn" onclick="doLogout()">ログアウト</button>
     </div>
   </div>
-  <div class="main" id="main">
-    <div class="loading"><div class="spinner"></div>読み込み中...</div>
+  <div class="app-layout">
+    <div class="sidebar" id="sidebar">
+      <span class="sidebar-label">カテゴリ</span>
+      <div id="sidebarItems"></div>
+    </div>
+    <div class="main-content">
+      <div class="main" id="main">
+        <div class="loading"><div class="spinner"></div>読み込み中...</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -326,7 +353,23 @@ function getTotalProgress(traineeId) {
   return { taught, total };
 }
 
-function render() { renderMain(); }
+function render() {
+  renderSidebar();
+  renderMain();
+}
+
+function renderSidebar() {
+  const el = document.getElementById('sidebarItems');
+  if (!el || !state.currentTrainee) return;
+  el.innerHTML = state.categories.map(function(cat) {
+    const p = getCategoryProgress(state.currentTrainee, cat.id);
+    return '<div class="sidebar-item ' + (state.currentCategory === cat.id ? 'active' : '') + '" onclick="selectCategory(\'' + cat.id + '\')">' +
+      '<div class="sidebar-dot"></div>' +
+      '<span style="flex:1">' + cat.name + '</span>' +
+      '<span class="sidebar-progress">' + p.taught + '/' + p.total + '</span>' +
+      '</div>';
+  }).join('');
+}
 
 function renderMain() {
   const role = state.user.role;
@@ -471,9 +514,15 @@ function selectTrainee(traineeId) {
   } else { render(); }
 }
 
-function toggleCategory(id) {
-  state.openCategories.has(id) ? state.openCategories.delete(id) : state.openCategories.add(id);
+function selectCategory(id) {
+  state.currentCategory = id;
+  state.openCategories.add(id);
   render();
+  setTimeout(function() {
+    const blocks = document.querySelectorAll('.category-block');
+    const idx = state.categories.findIndex(function(c) { return c.id === id; });
+    if (blocks[idx]) blocks[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
 }
 
 function setView(v) { state.view = v; render(); }
