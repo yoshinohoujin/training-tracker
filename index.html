@@ -310,7 +310,7 @@ function initApp() {
   callGAS('getCategories')
     .then(function(cats) {
       state.categories = cats;
-      if (cats.length > 0) { state.currentCategory = cats[0].id; state.openCategories.add(cats[0].id); }
+      if (cats.length > 0) { state.currentCategory = cats[0].id; }
       return loadTraineesAndData();
     })
     .catch(showError);
@@ -323,24 +323,27 @@ function loadTraineesAndData() {
     state.currentTrainee = state.user.traineeId;
     return callGAS('getProgress', { traineeId: state.user.traineeId })
       .then(function(progress) { state.data[state.user.traineeId] = progress; render(); });
+  } else if (role === '店長' || role === '管理職') {
+    return Promise.all([callGAS('getTrainees'), callGAS('getAllProgress')])
+      .then(function(results) {
+        state.trainees = results[0];
+        state.data = results[1];
+        if (state.trainees.length > 0) state.currentTrainee = state.trainees[0].traineeId;
+        render();
+      });
   } else {
     return callGAS('getTrainees')
       .then(function(trainees) {
         state.trainees = trainees;
         if (trainees.length > 0) state.currentTrainee = trainees[0].traineeId;
-        if (role === '店長' || role === '管理職') {
-          return callGAS('getAllProgress')
-            .then(function(allData) { state.data = allData; render(); });
-        } else {
-          if (state.currentTrainee) {
-            return callGAS('getProgress', { traineeId: state.currentTrainee })
-              .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
-          } else { render(); }
-        }
+        if (state.currentTrainee) {
+          return callGAS('getProgress', { traineeId: state.currentTrainee })
+            .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
+        } else { render(); }
       });
   }
 }
-
+  
 function loadProgressData(traineeId) {
   return callGAS('getProgress', { traineeId: traineeId })
     .then(function(progress) { state.data[traineeId] = progress; render(); });
