@@ -282,10 +282,12 @@ function doLogin() {
       btn.disabled = false; btn.textContent = 'ログイン';
       if (result.success) {
         state.user = result;
+        sessionStorage.setItem('loginUser', JSON.stringify(result));
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appScreen').style.display = 'block';
         initApp();
-      } else { err.textContent = '社員番号またはパスワードが違います'; }
+      }
+      else { err.textContent = '社員番号またはパスワードが違います'; }
     })
     .catch(function(e) { btn.disabled = false; btn.textContent = 'ログイン'; err.textContent = 'エラー: ' + e.message; });
 }
