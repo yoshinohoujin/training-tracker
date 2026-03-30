@@ -155,8 +155,45 @@
 .main-content { flex: 1; overflow-y: auto; }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
+/* ===== PC LAYOUT ===== */
+@media (min-width: 769px) {
+  .item-row {
+    display: grid;
+    grid-template-columns: 1fr 200px 200px;
+    align-items: start;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+  .item-row-header {
+    display: grid;
+    grid-template-columns: 1fr 200px 200px;
+    padding: 8px 16px;
+    gap: 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  .item-checks { display: contents; }
+  .check-col {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+  .check-col-label { display: none; }
+  .grade-btn { width: 32px; height: 32px; font-size: 0.8rem; }
+  .grade-select { gap: 4px; }
+  .taught-check { margin-bottom: 6px; }
+  .check-box { width: 32px; height: 32px; font-size: 1rem; }
+}
+
+/* ===== RESPONSIVE (SP) ===== */
+@media (max-width: 768px) {
   .sidebar { display: none; }
+  .item-row-header { display: none; }
   .overview-grid { grid-template-columns: 1fr; }
   .view-tabs { width: 100%; }
   .view-tab { flex: 1; text-align: center; }
@@ -445,6 +482,7 @@ function renderDetail(canEdit) {
     html += '<span style="font-size:0.7rem;color:var(--text3)">' + cpct + '%</span></div></div>';
 
     if (isOpen) {
+      html += '<div class="item-row-header"><div>業務内容</div><div>指導日 / 習得度①</div><div>再指導日 / 習得度②</div></div>';
       cat.items.forEach(function(item) {
         const rec = getRecord(traineeId, item.id);
         const status = rec.retaughtDate ? 'done' : rec.taughtDate ? 'taught' : 'none';
