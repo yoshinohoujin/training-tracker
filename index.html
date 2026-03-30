@@ -159,14 +159,14 @@
 @media (min-width: 600px) {
   .item-row {
     display: grid;
-    grid-template-columns: 1fr 200px 200px;
-    align-items: start;
+    grid-template-columns: 1fr 220px 220px;
+    align-items: center;
     padding: 10px 16px;
     gap: 12px;
   }
   .item-row-header {
     display: grid;
-    grid-template-columns: 1fr 200px 200px;
+    grid-template-columns: 1fr 220px 220px;
     padding: 8px 16px;
     gap: 12px;
     background: var(--surface2);
@@ -184,10 +184,26 @@
     border-radius: 0;
   }
   .check-col-label { display: none; }
-  .grade-btn { width: 32px; height: 32px; font-size: 0.8rem; }
-  .grade-select { gap: 4px; }
-  .taught-check { margin-bottom: 6px; }
-  .check-box { width: 32px; height: 32px; font-size: 1rem; }
+  .taught-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+  .check-col > .taught-check,
+  .check-col > .grade-select {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  .check-col {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+  .grade-btn { width: 30px; height: 30px; font-size: 0.8rem; }
+  .grade-select { gap: 4px; flex-wrap: nowrap; }
+  .check-box { width: 30px; height: 30px; font-size: 0.95rem; }
 }
 
 /* ===== RESPONSIVE (SP) ===== */
@@ -470,6 +486,13 @@ function renderDetail(canEdit) {
   html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
   html += '<div class="progress-wrap"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
 
+  html += '<div class="legend" style="margin-bottom:16px;border-radius:var(--radius);border:1px solid var(--border);">';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：1人で実践できる</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：援助があれば実践できる</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
+  html += '</div>';
+
   state.categories.forEach(function(cat) {
     const isOpen = state.openCategories.has(cat.id);
     const p = getCategoryProgress(traineeId, cat.id);
@@ -529,13 +552,7 @@ function renderDetail(canEdit) {
         }
         html += '</div></div></div>';
       });
-
-      html += '<div class="legend">';
-      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：1人で実践できる</span>';
-      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：援助があれば実践できる</span>';
-      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
-      html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
-      html += '</div>';
+      
     }
     html += '</div>';
   });
