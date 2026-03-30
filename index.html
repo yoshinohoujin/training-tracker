@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- v2 -->
+<!-- v3 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>新人教育進捗管理 v2</title>
+<title>新人教育進捗管理</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -87,7 +87,7 @@
   .category-mini-bar { width: 60px; background: var(--surface2); border-radius: 3px; height: 4px; overflow: hidden; }
   .category-mini-fill { height: 100%; background: var(--accent); border-radius: 3px; }
 
-  /* ITEM - スマホ共通 */
+  /* ITEM */
   .item-row { padding: 14px 16px; border-bottom: 1px solid var(--border); }
   .item-row:last-child { border-bottom: none; }
   .item-row-header { display: none; }
@@ -142,37 +142,10 @@
   /* PC LAYOUT */
   @media (min-width: 600px) {
     .sidebar { display: block; }
-    .item-row {
-      display: grid;
-      grid-template-columns: 1fr 240px 240px;
-      align-items: center;
-      padding: 10px 16px;
-      gap: 12px;
-    }
-    .item-row-header {
-      display: grid;
-      grid-template-columns: 1fr 240px 240px;
-      padding: 8px 16px;
-      gap: 12px;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--text3);
-      text-transform: uppercase;
-    }
+    .item-row { display: grid; grid-template-columns: 1fr 240px 240px; align-items: center; padding: 10px 16px; gap: 12px; }
+    .item-row-header { display: grid; grid-template-columns: 1fr 240px 240px; padding: 8px 16px; gap: 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
     .item-checks { display: contents; }
-    .check-col {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: transparent;
-      padding: 0;
-      border-radius: 0;
-      min-width: 0;
-      overflow: visible;
-    }
+    .check-col { display: flex; align-items: center; gap: 10px; background: transparent; padding: 0; border-radius: 0; min-width: 0; overflow: visible; }
     .check-col-label { display: none; }
     .taught-check { margin-bottom: 0; }
     .check-box { width: 30px; height: 30px; font-size: 0.95rem; }
@@ -242,7 +215,13 @@ let state = {
   openCategories: new Set()
 };
 
+const gasCache = {};
+
 function callGAS(func, params) {
+  const cacheKey = func + (params ? JSON.stringify(params) : '');
+  if (func !== 'saveProgress' && gasCache[cacheKey]) {
+    return Promise.resolve(gasCache[cacheKey]);
+  }
   return new Promise(function(resolve, reject) {
     const callbackName = 'cb_' + func + '_' + Date.now();
     const script = document.createElement('script');
@@ -258,7 +237,10 @@ function callGAS(func, params) {
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
       if (data.error) reject(new Error(data.error));
-      else resolve(data.result);
+      else {
+        if (func !== 'saveProgress') gasCache[cacheKey] = data.result;
+        resolve(data.result);
+      }
     };
     script.onerror = function() {
       clearTimeout(timer);
@@ -282,12 +264,11 @@ function doLogin() {
       btn.disabled = false; btn.textContent = 'ログイン';
       if (result.success) {
         state.user = result;
-        sessionStorage.setItem('loginUser', JSON.stringify(result));
+        localStorage.setItem('loginUser', JSON.stringify(result));
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appScreen').style.display = 'block';
         initApp();
-      }
-      else { err.textContent = '社員番号またはパスワードが違います'; }
+      } else { err.textContent = '社員番号またはパスワードが違います'; }
     })
     .catch(function(e) { btn.disabled = false; btn.textContent = 'ログイン'; err.textContent = 'エラー: ' + e.message; });
 }
@@ -295,6 +276,7 @@ function doLogin() {
 document.getElementById('inputPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
 
 function doLogout() {
+  localStorage.removeItem('loginUser');
   state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set() };
   document.getElementById('appScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -309,43 +291,50 @@ function initApp() {
   document.getElementById('userNameLabel').textContent = state.user.name;
   document.getElementById('roleBadge').textContent = roleLabels[state.user.role] || state.user.role;
   document.getElementById('roleBadge').className = 'role-badge ' + (roleClasses[state.user.role] || 'role-trainer');
-  callGAS('getCategories')
-    .then(function(cats) {
-      state.categories = cats;
-      if (cats.length > 0) { state.currentCategory = cats[0].id; }
-      return loadTraineesAndData();
-    })
-    .catch(showError);
-}
 
-function loadTraineesAndData() {
   const role = state.user.role;
   if (role === '新人') {
     state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name }];
     state.currentTrainee = state.user.traineeId;
-    return callGAS('getProgress', { traineeId: state.user.traineeId })
-      .then(function(progress) { state.data[state.user.traineeId] = progress; render(); });
+    Promise.all([
+      callGAS('getCategories'),
+      callGAS('getProgress', { traineeId: state.user.traineeId })
+    ]).then(function(results) {
+      state.categories = results[0];
+      if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+      state.data[state.user.traineeId] = results[1];
+      render();
+    }).catch(showError);
   } else if (role === '店長' || role === '管理職') {
-    return Promise.all([callGAS('getTrainees'), callGAS('getAllProgress')])
-      .then(function(results) {
-        state.trainees = results[0];
-        state.data = results[1];
-        if (state.trainees.length > 0) state.currentTrainee = state.trainees[0].traineeId;
-        render();
-      });
+    Promise.all([
+      callGAS('getCategories'),
+      callGAS('getTrainees'),
+      callGAS('getAllProgress')
+    ]).then(function(results) {
+      state.categories = results[0];
+      if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+      state.trainees = results[1];
+      state.data = results[2];
+      if (state.trainees.length > 0) state.currentTrainee = state.trainees[0].traineeId;
+      render();
+    }).catch(showError);
   } else {
-    return callGAS('getTrainees')
-      .then(function(trainees) {
-        state.trainees = trainees;
-        if (trainees.length > 0) state.currentTrainee = trainees[0].traineeId;
-        if (state.currentTrainee) {
-          return callGAS('getProgress', { traineeId: state.currentTrainee })
-            .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
-        } else { render(); }
-      });
+    Promise.all([
+      callGAS('getCategories'),
+      callGAS('getTrainees')
+    ]).then(function(results) {
+      state.categories = results[0];
+      if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+      state.trainees = results[1];
+      if (state.trainees.length > 0) {
+        state.currentTrainee = state.trainees[0].traineeId;
+        return callGAS('getProgress', { traineeId: state.currentTrainee })
+          .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
+      } else { render(); }
+    }).catch(showError);
   }
 }
-  
+
 function loadProgressData(traineeId) {
   return callGAS('getProgress', { traineeId: traineeId })
     .then(function(progress) { state.data[traineeId] = progress; render(); });
@@ -411,7 +400,6 @@ function renderMain() {
   } else {
     html += renderDetail(canEdit);
   }
-
   document.getElementById('main').innerHTML = html;
 }
 
@@ -445,8 +433,6 @@ function renderDetail(canEdit) {
   html += '<div class="section-stats"><div class="stat-item"><div class="stat-num">' + pct + '%</div><div class="stat-label">指導済み</div></div>';
   html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
   html += '<div class="progress-wrap"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
-
-  // 凡例を上に表示
   html += '<div class="legend">';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：1人で実践できる</span>';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：援助があれば実践できる</span>';
@@ -458,7 +444,6 @@ function renderDetail(canEdit) {
     const isOpen = state.openCategories.has(cat.id);
     const p = getCategoryProgress(traineeId, cat.id);
     const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
-
     html += '<div class="category-block"><div class="category-head" onclick="toggleCategory(\'' + cat.id + '\')">';
     html += '<div class="category-head-left"><span class="category-chevron ' + (isOpen ? 'open' : '') + '">▼</span>';
     html += '<span class="category-name">' + cat.name + '</span><span class="category-count">' + p.taught + '/' + p.total + '</span></div>';
@@ -474,12 +459,9 @@ function renderDetail(canEdit) {
         const statusStyle = status === 'done'
           ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
           : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
-
         html += '<div class="item-row"><div class="item-name-wrap"><span class="item-name">' + item.name + '</span>';
         if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
         html += '</div><div class="item-checks">';
-
-        // 1回目
         html += '<div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check ' + (rec.taughtDate ? 'checked' : '') + '" onclick="toggleTaught(\'' + traineeId + '\',\'' + item.id + '\')">';
@@ -495,8 +477,6 @@ function renderDetail(canEdit) {
           html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</div>';
         }
         html += '</div>';
-
-        // 再指導
         html += '<div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
@@ -533,7 +513,7 @@ function selectCategory(id) {
   render();
   setTimeout(function() {
     const blocks = document.querySelectorAll('.category-block');
-    const idx = state.categories.findIndex(function(c) { return c.id === id; });toggleCategory
+    const idx = state.categories.findIndex(function(c) { return c.id === id; });
     if (blocks[idx]) blocks[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 50);
 }
@@ -586,6 +566,21 @@ function showToast(msg, type) {
 function showError(e) {
   document.getElementById('main').innerHTML = '<div class="loading" style="color:var(--red)">エラー: ' + (e ? e.message : '不明') + '</div>';
 }
+
+// 自動ログイン
+(function() {
+  const saved = localStorage.getItem('loginUser');
+  if (saved) {
+    try {
+      state.user = JSON.parse(saved);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appScreen').style.display = 'block';
+      initApp();
+    } catch(e) {
+      localStorage.removeItem('loginUser');
+    }
+  }
+})();
 </script>
 </body>
 </html>
