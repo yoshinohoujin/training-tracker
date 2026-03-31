@@ -377,7 +377,7 @@ function renderMain() {
   const role = state.user.role;
   const isManager = role === '店長' || role === '管理職';
   const isNew = role === '新スタッフ';
-  const canEdit = role === 'トレーナー';
+  const canEdit = role === 'トレーナー' || role === '店長';
   let html = '';
 
   if (!isNew) {
