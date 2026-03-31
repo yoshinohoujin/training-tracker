@@ -219,7 +219,7 @@ const gasCache = {};
 
 function callGAS(func, params) {
   const cacheKey = func + (params ? JSON.stringify(params) : '');
-  if (func !== 'saveProgress' && func !== 'login' && func !== 'getProgress' && func !== 'getAllProgress' && gasCache[cacheKey]) {
+  if (func !== 'saveProgress' && func !== 'login' && func !== 'getProgress' && func !== 'getAllProgress' && func !== 'getTrainees' && gasCache[cacheKey]) {
     return Promise.resolve(gasCache[cacheKey]);
   }
   return new Promise(function(resolve, reject) {
