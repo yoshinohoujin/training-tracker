@@ -207,7 +207,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyWeyoCOpIP2NJ5dQyDuB7DdoQh-04FM75vhpkFOfu0gR16mENNhab8SLl6KiBjFgNzfw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby7kWI863iXn6Gg-fe0KPtob0mQKbmBC3bxjX9-9AG15gadP73wtpj2YhcDZcF4OuGulw/exec';
 
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
@@ -381,7 +381,7 @@ function renderMain() {
   let html = '';
 
   if (!isNew) {
-    html += '<div class="trainee-bar"><span class="trainee-label">新人：</span>';
+    html += '<div class="trainee-bar"><span class="trainee-label">新スタッフ：</span>';
     state.trainees.forEach(function(t) {
       html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>';
     });
@@ -422,7 +422,7 @@ function renderOverview() {
 }
 
 function renderDetail(canEdit) {
-  if (!state.currentTrainee) return '<div class="loading">新人が登録されていません</div>';
+  if (!state.currentTrainee) return '<div class="loading">新スタッフが登録されていません</div>';
   const traineeId = state.currentTrainee;
   const total = getTotalProgress(traineeId);
   const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
