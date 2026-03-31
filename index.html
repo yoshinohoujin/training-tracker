@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v4 -->
+<!-- v5 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -208,7 +208,7 @@
 
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxz0mkP4uUUcJd8G1-xe2FzDcOtr4NE5cGT2l80-Zny2ItY528cBImRr8MwFYFgpAlLXA/exec';
-  
+
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
   categories: [], trainees: [], data: {}, view: 'detail',
@@ -285,6 +285,16 @@ function doLogout() {
   document.getElementById('loginError').textContent = '';
 }
 
+// 担当新人IDから最初の1人を選択するヘルパー
+function getAssignedTrainee(trainees) {
+  const assignedId = state.user.traineeId ? String(state.user.traineeId).split(',')[0].trim() : '';
+  if (assignedId) {
+    const found = trainees.find(function(t) { return t.traineeId === assignedId; });
+    if (found) return found.traineeId;
+  }
+  return trainees.length > 0 ? trainees[0].traineeId : null;
+}
+
 function initApp() {
   const roleLabels = { '新スタッフ': '新スタッフ', 'トレーナー': 'トレーナー', '店長': '店長', '管理職': '管理職' };
   const roleClasses = { '新スタッフ': 'role-new', 'トレーナー': 'role-trainer', '店長': 'role-manager', '管理職': 'role-manager' };
@@ -315,7 +325,9 @@ function initApp() {
       if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
       state.trainees = results[1];
       state.data = results[2];
-      if (state.trainees.length > 0) state.currentTrainee = state.trainees[0].traineeId;
+      if (state.trainees.length > 0) {
+        state.currentTrainee = getAssignedTrainee(state.trainees);
+      }
       render();
     }).catch(showError);
   } else {
@@ -327,7 +339,7 @@ function initApp() {
       if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
       state.trainees = results[1];
       if (state.trainees.length > 0) {
-        state.currentTrainee = state.trainees[0].traineeId;
+        state.currentTrainee = getAssignedTrainee(state.trainees);
         return callGAS('getProgress', { traineeId: state.currentTrainee })
           .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
       } else { render(); }
