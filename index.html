@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v6 -->
+<!-- v7 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -149,7 +149,7 @@
   .admin-item-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
   .admin-item-row:last-child { border-bottom: none; }
   .admin-item-name { flex: 1; }
-  .admin-btn { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; color: var(--text2); }
+  .admin-btn { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; color: var(--text2); white-space: nowrap; }
   .admin-btn:hover { background: var(--surface2); }
   .admin-btn.danger { color: var(--red); border-color: rgba(220,38,38,0.3); }
   .admin-btn.danger:hover { background: rgba(220,38,38,0.05); }
@@ -174,7 +174,6 @@
     .grade-select { gap: 4px; flex-wrap: nowrap; }
     .grade-btn { width: 30px; height: 30px; font-size: 0.78rem; }
     .taught-date-label { white-space: nowrap; }
-    .admin-tabs { width: fit-content; }
   }
 
   /* SP LAYOUT */
@@ -237,18 +236,29 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzY-k0JfD_gtDk_2QlNJ5Yf
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
   categories: [], trainees: [], data: {}, view: 'detail',
-  openCategories: new Set(), adminView: 'items'
+  openCategories: new Set(), adminView: 'items', staffList: null
 };
 
 const gasCache = {};
 
+function clearCategoryCache() {
+  Object.keys(gasCache).forEach(function(k) {
+    if (k.startsWith('getCategories')) delete gasCache[k];
+  });
+}
+
+function clearStaffCache() {
+  Object.keys(gasCache).forEach(function(k) {
+    if (k.startsWith('getStaffList')) delete gasCache[k];
+  });
+}
+
 function callGAS(func, params) {
   const cacheKey = func + (params ? JSON.stringify(params) : '');
-  if (func !== 'saveProgress' && func !== 'login' && func !== 'getProgress' &&
-      func !== 'getAllProgress' && func !== 'getTrainees' && func !== 'getStaffList' &&
-      func !== 'getCategories' && func !== 'addItem' && func !== 'updateItem' &&
-      func !== 'deleteItem' && func !== 'reorderItem' && func !== 'addCategory' &&
-      func !== 'addStaff' && func !== 'updateStaff' && gasCache[cacheKey]) {
+  const noCache = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
+    'getStaffList','getCategories','addItem','updateItem','deleteItem','reorderItem',
+    'addCategory','addStaff','updateStaff'];
+  if (noCache.indexOf(func) === -1 && gasCache[cacheKey]) {
     return Promise.resolve(gasCache[cacheKey]);
   }
   return new Promise(function(resolve, reject) {
@@ -267,7 +277,7 @@ function callGAS(func, params) {
       if (script.parentNode) script.parentNode.removeChild(script);
       if (data.error) reject(new Error(data.error));
       else {
-        if (func !== 'saveProgress') gasCache[cacheKey] = data.result;
+        if (noCache.indexOf(func) === -1) gasCache[cacheKey] = data.result;
         resolve(data.result);
       }
     };
@@ -288,7 +298,7 @@ function doLogin() {
   const err = document.getElementById('loginError');
   if (!staffId || !password) { err.textContent = '社員番号とパスワードを入力してください'; return; }
   btn.disabled = true; btn.textContent = 'ログイン中...'; err.textContent = '';
-  callGAS('login', { staffId: staffId, password: password })
+  callGAS('login', { staffId, password })
     .then(function(result) {
       btn.disabled = false; btn.textContent = 'ログイン';
       if (result.success) {
@@ -306,7 +316,7 @@ document.getElementById('inputPassword').addEventListener('keydown', function(e)
 
 function doLogout() {
   localStorage.removeItem('loginUser');
-  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set(), adminView: 'items' };
+  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set(), adminView: 'items', staffList: null };
   document.getElementById('appScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('inputStaffId').value = '';
@@ -341,17 +351,7 @@ function initApp() {
         state.data[state.user.traineeId] = results[1];
         render();
       }).catch(showError);
-  } else if (role === '管理職') {
-    Promise.all([callGAS('getCategories'), callGAS('getTrainees'), callGAS('getAllProgress')])
-      .then(function(results) {
-        state.categories = results[0];
-        if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
-        state.trainees = results[1];
-        state.data = results[2];
-        if (state.trainees.length > 0) state.currentTrainee = getAssignedTrainee(state.trainees);
-        render();
-      }).catch(showError);
-  } else if (role === '店長') {
+  } else if (role === '管理職' || role === '店長') {
     Promise.all([callGAS('getCategories'), callGAS('getTrainees'), callGAS('getAllProgress')])
       .then(function(results) {
         state.categories = results[0];
@@ -377,7 +377,7 @@ function initApp() {
 }
 
 function loadProgressData(traineeId) {
-  return callGAS('getProgress', { traineeId: traineeId })
+  return callGAS('getProgress', { traineeId })
     .then(function(progress) { state.data[traineeId] = progress; render(); });
 }
 
@@ -406,8 +406,7 @@ function render() { renderSidebar(); renderMain(); }
 function renderSidebar() {
   const el = document.getElementById('sidebarItems');
   if (!el) return;
-  const role = state.user.role;
-  if (role === '管理職' && state.view === 'admin') {
+  if (state.user.role === '管理職' && state.view === 'admin') {
     el.innerHTML = '<div class="sidebar-item" onclick="setView(\'detail\')" style="color:var(--accent2)">← 進捗管理に戻る</div>';
     return;
   }
@@ -462,7 +461,6 @@ function renderAdmin() {
   html += '<button class="admin-tab ' + (state.adminView === 'items' ? 'active' : '') + '" onclick="setAdminView(\'items\')">📚 教育項目</button>';
   html += '<button class="admin-tab ' + (state.adminView === 'staff' ? 'active' : '') + '" onclick="setAdminView(\'staff\')">👥 スタッフ</button>';
   html += '</div>';
-
   if (state.adminView === 'items') {
     html += renderAdminItems();
   } else {
@@ -473,8 +471,6 @@ function renderAdmin() {
 
 function renderAdminItems() {
   let html = '';
-
-  // カテゴリ追加フォーム
   html += '<div class="admin-section">';
   html += '<div class="admin-section-head"><span class="admin-section-title">カテゴリ追加</span></div>';
   html += '<div class="admin-form">';
@@ -482,13 +478,9 @@ function renderAdminItems() {
   html += '<button class="admin-btn primary" onclick="doAddCategory()">追加</button>';
   html += '</div></div>';
 
-  // カテゴリ・項目一覧
   state.categories.forEach(function(cat) {
     html += '<div class="admin-section">';
-    html += '<div class="admin-section-head">';
-    html += '<span class="admin-section-title">📁 ' + cat.name + '（' + cat.items.length + '項目）</span>';
-    html += '</div>';
-
+    html += '<div class="admin-section-head"><span class="admin-section-title">📁 ' + cat.name + '（' + cat.items.length + '項目）</span></div>';
     cat.items.forEach(function(item, idx) {
       html += '<div class="admin-item-row">';
       html += '<span class="admin-item-name" id="item-name-' + item.id + '">' + item.name + '</span>';
@@ -498,15 +490,11 @@ function renderAdminItems() {
       html += '<button class="admin-btn danger" onclick="doDeleteItem(\'' + item.id + '\',\'' + item.name.replace(/'/g, "\\'") + '\')">削除</button>';
       html += '</div>';
     });
-
-    // 項目追加フォーム
     html += '<div class="admin-form">';
     html += '<input class="admin-input" id="newItem-' + cat.id + '" placeholder="新しい項目名" style="flex:1">';
     html += '<button class="admin-btn primary" onclick="doAddItem(\'' + cat.id + '\')">追加</button>';
-    html += '</div>';
-    html += '</div>';
+    html += '</div></div>';
   });
-
   return html;
 }
 
@@ -519,30 +507,31 @@ function renderAdminStaff() {
     return '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
   }
 
-  const roleColors = { '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)', 'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)', '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)', '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)' };
+  const roleColors = {
+    '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)',
+    'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)',
+    '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)',
+    '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)'
+  };
 
   let html = '<div class="admin-section">';
   html += '<div class="admin-section-head"><span class="admin-section-title">スタッフ一覧</span></div>';
-
   state.staffList.forEach(function(s) {
     html += '<div class="admin-item-row">';
     html += '<span class="admin-item-name">';
-    html += '<span class="staff-role-badge" style="' + (roleColors[s.role] || '') + ';border-radius:10px;padding:2px 6px;font-size:0.65rem;margin-right:6px;">' + s.role + '</span>';
+    html += '<span style="' + (roleColors[s.role]||'') + ';border-radius:10px;padding:2px 6px;font-size:0.65rem;margin-right:6px;">' + s.role + '</span>';
     html += s.name + '（' + s.staffId + '）';
     if (s.traineeId) html += ' <span style="font-size:0.7rem;color:var(--text3)">担当:' + s.traineeId + '</span>';
     html += '</span>';
     html += '<button class="admin-btn" onclick="startEditStaff(\'' + s.staffId + '\')">編集</button>';
     if (s.role === '新スタッフ') {
-      const activeLabel = s.active === true ? '在籍中' : '非在籍';
-      const activeStyle = s.active === true ? 'color:var(--green)' : 'color:var(--text3)';
-      html += '<button class="admin-btn" style="' + activeStyle + '" onclick="doToggleActive(\'' + s.staffId + '\',' + s.active + ')">' + activeLabel + '</button>';
+      const isActive = s.active === true;
+      html += '<button class="admin-btn" style="' + (isActive ? 'color:var(--green)' : 'color:var(--text3)') + '" onclick="doToggleActive(\'' + s.staffId + '\',' + isActive + ')">' + (isActive ? '在籍中' : '非在籍') + '</button>';
     }
     html += '</div>';
   });
-
   html += '</div>';
 
-  // スタッフ追加フォーム
   html += '<div class="admin-section">';
   html += '<div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:10px;">';
@@ -563,11 +552,18 @@ function renderAdminStaff() {
   html += '</div>';
   html += '<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button>';
   html += '</div></div>';
-
   return html;
 }
 
-// ===== 管理職操作関数 =====
+// ===== 管理職操作 =====
+function reloadCategories() {
+  clearCategoryCache();
+  return callGAS('getCategories').then(function(cats) {
+    state.categories = cats;
+    document.getElementById('main').innerHTML = renderAdmin();
+  });
+}
+
 function setAdminView(v) {
   state.adminView = v;
   state.staffList = null;
@@ -581,10 +577,7 @@ function doAddCategory() {
     .then(function(result) {
       if (result.success) {
         showToast('カテゴリを追加しました', 'success');
-        return callGAS('getCategories').then(function(cats) {
-          state.categories = cats;
-          document.getElementById('main').innerHTML = renderAdmin();
-        });
+        reloadCategories();
       } else { showToast(result.error || '追加失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
@@ -597,10 +590,7 @@ function doAddItem(categoryId) {
     .then(function(result) {
       if (result.success) {
         showToast('項目を追加しました', 'success');
-        return callGAS('getCategories').then(function(cats) {
-          state.categories = cats;
-          document.getElementById('main').innerHTML = renderAdmin();
-        });
+        reloadCategories();
       } else { showToast(result.error || '追加失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
@@ -608,50 +598,43 @@ function doAddItem(categoryId) {
 function startEditItem(itemId, currentName) {
   const span = document.getElementById('item-name-' + itemId);
   if (!span) return;
+  const editBtn = span.nextElementSibling;
   span.innerHTML = '<input class="admin-input" id="edit-item-' + itemId + '" value="' + currentName + '" style="width:100%">';
-  span.nextElementSibling.textContent = '保存';
-  span.nextElementSibling.onclick = function() { doUpdateItem(itemId); };
+  editBtn.textContent = '保存';
+  editBtn.onclick = function() { doUpdateItem(itemId); };
 }
 
 function doUpdateItem(itemId) {
   const input = document.getElementById('edit-item-' + itemId);
   const name = input ? input.value.trim() : '';
   if (!name) return;
-  callGAS('updateItem', { itemId: itemId, itemName: name })
+  callGAS('updateItem', { itemId, itemName: name })
     .then(function(result) {
       if (result.success) {
         showToast('更新しました', 'success');
-        return callGAS('getCategories').then(function(cats) {
-          state.categories = cats;
-          document.getElementById('main').innerHTML = renderAdmin();
-        });
+        reloadCategories();
       } else { showToast(result.error || '更新失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
 function doDeleteItem(itemId, itemName) {
   if (!confirm('「' + itemName + '」を削除しますか？')) return;
-  callGAS('deleteItem', { itemId: itemId })
+  callGAS('deleteItem', { itemId })
     .then(function(result) {
       if (result.success) {
         showToast('削除しました', 'success');
-        return callGAS('getCategories').then(function(cats) {
-          state.categories = cats;
-          document.getElementById('main').innerHTML = renderAdmin();
-        });
+        reloadCategories();
       } else { showToast(result.error || '削除失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
 function doReorderItem(itemId, direction) {
-  callGAS('reorderItem', { itemId: itemId, direction: direction })
+  callGAS('reorderItem', { itemId, direction })
     .then(function(result) {
       if (result.success) {
-        return callGAS('getCategories').then(function(cats) {
-          state.categories = cats;
-          document.getElementById('main').innerHTML = renderAdmin();
-        });
-      }
+        showToast('並び替えました', 'success');
+        reloadCategories();
+      } else { showToast('並び替え失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -867,7 +850,7 @@ function updateField(traineeId, itemId, field, value) {
 }
 
 function saveField(traineeId, itemId, field, value) {
-  callGAS('saveProgress', { traineeId: traineeId, itemId: itemId, field: field, value: value })
+  callGAS('saveProgress', { traineeId, itemId, field, value })
     .then(function() { showToast('保存しました ✓', 'success'); })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
@@ -888,7 +871,6 @@ function showError(e) {
   document.getElementById('main').innerHTML = '<div class="loading" style="color:var(--red)">エラー: ' + (e ? e.message : '不明') + '</div>';
 }
 
-// 自動ログイン
 (function() {
   const saved = localStorage.getItem('loginUser');
   if (saved) {
