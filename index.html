@@ -799,7 +799,7 @@ function doUpdateStaff(staffId) {
 function doToggleActive(staffId, currentActive) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  const newActive = !currentActive;
+  const newActive = !(currentActive === true || currentActive === 'true');
   s.active = newActive;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
@@ -809,7 +809,7 @@ function doToggleActive(staffId, currentActive) {
   function doToggleEnabled(staffId, currentEnabled) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  const newEnabled = !currentEnabled;
+  const newEnabled = !(currentEnabled === true || currentEnabled === 'true');
   s.enabled = newEnabled;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newEnabled ? '有効化しました' : '無効化しました', newEnabled ? 'success' : 'error');
