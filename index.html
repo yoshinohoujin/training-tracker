@@ -803,7 +803,7 @@ function doToggleActive(staffId, currentActive) {
   s.active = newActive;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
-  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive, enabled: s.enabled !== false }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
   function doToggleEnabled(staffId, currentEnabled) {
