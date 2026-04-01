@@ -246,9 +246,9 @@ function callGAS(func, params) {
   const cacheKey = func + (params ? JSON.stringify(params) : '');
   if (func !== 'saveProgress' && func !== 'login' && func !== 'getProgress' &&
       func !== 'getAllProgress' && func !== 'getTrainees' && func !== 'getStaffList' &&
-      func !== 'addItem' && func !== 'updateItem' && func !== 'deleteItem' &&
-      func !== 'reorderItem' && func !== 'addCategory' && func !== 'addStaff' &&
-      func !== 'updateStaff' && gasCache[cacheKey]) {
+      func !== 'getCategories' && func !== 'addItem' && func !== 'updateItem' &&
+      func !== 'deleteItem' && func !== 'reorderItem' && func !== 'addCategory' &&
+      func !== 'addStaff' && func !== 'updateStaff' && gasCache[cacheKey]) {
     return Promise.resolve(gasCache[cacheKey]);
   }
   return new Promise(function(resolve, reject) {
