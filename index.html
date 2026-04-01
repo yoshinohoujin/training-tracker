@@ -232,7 +232,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby8F8gKEZ86CUdgwL3cgJOa5KJzx4NyIcEtV4s-B0GjvjaVDCfIP7xX5VEE2wl83xfSzQ/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzmR9nPQR7fvF24sb1NfGFgoj9uip-WP09_3lndWMmKbvKJmg0d0bgeMGjrwthhSZBdCg/exec';
 
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
@@ -287,7 +287,7 @@ function doLogin() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appScreen').style.display = 'block';
         initApp();
-      } else { err.textContent = '社員番号またはパスワードが違います'; }
+      } else { err.textContent = result.message || '社員番号またはパスワードが違います'; }
     })
     .catch(function(e) { btn.disabled = false; btn.textContent = 'ログイン'; err.textContent = 'エラー: ' + e.message; });
 }
@@ -616,25 +616,32 @@ function renderAdminStaff() {
     return '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
   }
   const roleColors = { '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)', 'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)', '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)', '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)' };
+  // 社員番号順ソート
+  const sortedStaff = state.staffList.slice().sort(function(a, b) {
+    return String(a.staffId).localeCompare(String(b.staffId), undefined, { numeric: true });
+  });
   let html = '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ一覧</span></div>';
   html += '<div style="overflow-x:auto"><table class="staff-table">';
   html += '<thead><tr><th>種別</th><th>社員番号</th><th>氏名</th><th>担当新人ID</th><th>操作</th></tr></thead><tbody>';
-  state.staffList.forEach(function(s) {
+  sortedStaff.forEach(function(s) {
     const isActive = s.active === true;
-    html += '<tr>';
+    const isEnabled = s.enabled !== false;
+    html += '<tr style="' + (!isEnabled ? 'opacity:0.5' : '') + '">';
     html += '<td><span style="' + (roleColors[s.role]||'') + ';border-radius:10px;padding:2px 8px;font-size:0.7rem;font-weight:500;white-space:nowrap;">' + s.role + '</span></td>';
     html += '<td style="color:var(--text2);font-size:0.8rem">' + s.staffId + '</td>';
-    html += '<td style="font-weight:500">' + s.name + '</td>';
+    html += '<td style="font-weight:500">' + s.name + (isEnabled ? '' : ' <span style="font-size:0.7rem;color:var(--text3)">[無効]</span>') + '</td>';
     html += '<td style="font-size:0.8rem;color:var(--text3)">' + (s.traineeId || '—') + '</td>';
     html += '<td><div class="btn-group">';
     html += '<button class="admin-btn" onclick="startEditStaff(\'' + s.staffId + '\')">編集</button>';
     if (s.role === '新スタッフ') {
       html += '<button class="admin-btn ' + (isActive ? 'success' : '') + '" onclick="doToggleActive(\'' + s.staffId + '\',' + isActive + ')">' + (isActive ? '表示中' : '非表示') + '</button>';
     }
+    html += '<button class="admin-btn ' + (isEnabled ? 'danger' : 'success') + '" onclick="doToggleEnabled(\'' + s.staffId + '\',' + isEnabled + ')">' + (isEnabled ? '無効化' : '有効化') + '</button>';
     html += '<button class="admin-btn danger" onclick="doDeleteStaff(\'' + s.staffId + '\',\'' + s.name.replace(/'/g, "\\'") + '\')">削除</button>';
     html += '</div></td>';
     html += '</tr>';
   });
+  
   html += '</tbody></table></div></div>';
   html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:10px;">';
@@ -785,7 +792,7 @@ function doUpdateStaff(staffId) {
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('更新しました', 'success');
   // 裏で保存
-  callGAS('updateStaff', { staffId, name, role, traineeId, year, active })
+  callGAS('updateStaff', { staffId, name, role, traineeId, year, active, enabled: s ? s.enabled : true })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -797,6 +804,17 @@ function doToggleActive(staffId, currentActive) {
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
   callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+}
+
+  function doToggleEnabled(staffId, currentEnabled) {
+  const s = state.staffList.find(function(x) { return x.staffId === staffId; });
+  if (!s) return;
+  const newEnabled = !currentEnabled;
+  s.enabled = newEnabled;
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast(newEnabled ? '有効化しました' : '無効化しました', newEnabled ? 'success' : 'error');
+  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: s.active, enabled: newEnabled })
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doDeleteStaff(staffId, staffName) {
