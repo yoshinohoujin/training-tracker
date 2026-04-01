@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v8 -->
+<!-- v9 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -17,7 +17,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); font-size: 1rem; min-height: 100vh; }
 
-  /* LOGIN */
   .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(30,35,64,0.08); }
   .login-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
@@ -30,7 +29,6 @@
   .login-btn:disabled { background: var(--text3); }
   .login-error { color: var(--red); font-size: 0.8rem; margin-top: 10px; text-align: center; }
 
-  /* HEADER */
   .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
   .header-title { font-size: 0.95rem; font-weight: 700; }
   .header-title span { color: var(--accent); }
@@ -41,7 +39,6 @@
   .role-new { background: rgba(22,163,74,0.1); color: var(--green); border: 1px solid rgba(22,163,74,0.2); }
   .logout-btn { font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
 
-  /* LAYOUT */
   .app-layout { display: flex; min-height: calc(100vh - 52px); }
   .sidebar { width: 200px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 16px 12px; position: sticky; top: 52px; height: calc(100vh - 52px); overflow-y: auto; }
   .sidebar-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; padding: 0 8px; margin-bottom: 8px; display: block; }
@@ -55,13 +52,11 @@
   .main-content { flex: 1; overflow-y: auto; }
   .main { padding: 16px; max-width: 960px; margin: 0 auto; }
 
-  /* TRAINEE BAR */
   .trainee-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
   .trainee-label { font-size: 0.85rem; color: var(--text2); }
   .trainee-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .trainee-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
 
-  /* STATS */
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
   .section-title { font-size: 1.1rem; font-weight: 700; }
   .section-stats { display: flex; gap: 16px; }
@@ -71,12 +66,10 @@
   .progress-wrap { background: var(--surface2); border-radius: 4px; height: 8px; margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border); }
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width 0.5s; }
 
-  /* LEGEND */
   .legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.7rem; color: var(--text2); margin-bottom: 16px; }
   .legend-item { display: flex; align-items: center; gap: 4px; }
   .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 
-  /* CATEGORY */
   .category-block { margin-bottom: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(30,35,64,0.06); }
   .category-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
   .category-head-left { display: flex; align-items: center; gap: 8px; }
@@ -87,7 +80,6 @@
   .category-mini-bar { width: 60px; background: var(--surface2); border-radius: 3px; height: 4px; overflow: hidden; }
   .category-mini-fill { height: 100%; background: var(--accent); border-radius: 3px; }
 
-  /* ITEM */
   .item-row { padding: 14px 16px; border-bottom: 1px solid var(--border); }
   .item-row:last-child { border-bottom: none; }
   .item-row-header { display: none; }
@@ -96,7 +88,6 @@
   .status-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
   .item-checks { display: flex; gap: 3px; overflow: hidden; }
   .check-col { flex: 1; background: var(--surface2); border-radius: 8px; padding: 8px 4px; min-width: 0; overflow: hidden; }
-  .check-col-label { font-size: 0.7rem; font-weight: 700; color: var(--text3); margin-bottom: 8px; }
   .taught-check { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; margin-bottom: 8px; }
   .check-box { width: 36px; height: 36px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.15s; flex-shrink: 0; }
   .taught-check.checked .check-box { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -111,7 +102,6 @@
   .grade-btn.active-C { background: rgba(217,119,6,0.15); border-color: var(--yellow); color: var(--yellow); }
   .grade-btn.active-D { background: rgba(220,38,38,0.15); border-color: var(--red); color: var(--red); }
 
-  /* OVERVIEW */
   .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .overview-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 4px rgba(30,35,64,0.06); }
   .overview-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -123,17 +113,14 @@
   .overview-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; }
   .overview-pct { font-size: 0.7rem; color: var(--text3); width: 28px; text-align: right; }
 
-  /* VIEW TABS */
   .view-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
   .view-tab { padding: 8px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .view-tab.active { background: var(--accent); color: #fff; font-weight: 500; }
 
-  /* LOADING */
   .loading { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 0.85rem; }
   .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* TOAST */
   .toast { position: fixed; bottom: 20px; right: 16px; left: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; font-size: 0.85rem; color: var(--text); opacity: 0; transform: translateY(10px); transition: all 0.2s; z-index: 999; pointer-events: none; box-shadow: 0 4px 16px rgba(30,35,64,0.1); text-align: center; max-width: 400px; margin: 0 auto; }
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast.success { border-left: 3px solid var(--green); }
@@ -146,7 +133,7 @@
   .admin-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
   .admin-section-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); }
   .admin-section-title { font-size: 0.9rem; font-weight: 600; }
-  .admin-item-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .admin-item-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; transition: background 0.1s; }
   .admin-item-row:last-child { border-bottom: none; }
   .admin-item-name { flex: 1; min-width: 0; }
   .admin-btn { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
@@ -162,6 +149,14 @@
   .admin-form { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; background: var(--surface2); border-top: 1px solid var(--border); align-items: center; }
   .admin-hint { font-size: 0.7rem; color: var(--text3); margin-top: 4px; }
 
+  /* DRAG & DROP */
+  .drag-handle { cursor: grab; color: var(--text3); padding: 0 4px; font-size: 1rem; flex-shrink: 0; user-select: none; }
+  .drag-handle:active { cursor: grabbing; }
+  .dragging { opacity: 0.4; }
+  .drag-over-top { border-top: 2px solid var(--accent) !important; }
+  .drag-over-bottom { border-bottom: 2px solid var(--accent) !important; }
+  .cat-drag-over { border: 2px solid var(--accent) !important; background: rgba(37,99,235,0.04); }
+
   /* PC LAYOUT */
   @media (min-width: 600px) {
     .sidebar { display: block; }
@@ -169,15 +164,12 @@
     .item-row-header { display: grid; grid-template-columns: 1fr 240px 240px; padding: 8px 16px; gap: 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
     .item-checks { display: contents; }
     .check-col { display: flex; align-items: center; gap: 10px; background: transparent; padding: 0; border-radius: 0; min-width: 0; overflow: visible; }
-    .check-col-label { display: none; }
     .taught-check { margin-bottom: 0; }
     .check-box { width: 30px; height: 30px; font-size: 0.95rem; }
     .grade-select { gap: 4px; flex-wrap: nowrap; }
     .grade-btn { width: 30px; height: 30px; font-size: 0.78rem; }
     .taught-date-label { white-space: nowrap; }
   }
-
-  /* SP LAYOUT */
   @media (max-width: 599px) {
     .sidebar { display: none; }
     .overview-grid { grid-template-columns: 1fr; }
@@ -232,7 +224,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwUxuyfmdLq9biI-e-qy5NsplCMQbJNPzTt_XXLz70CkSCX96FLlUDFZC2czSpXWaWzuQ/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyPj4kv8HDIdpVsisvvfoQLAb5ADWQdwoZBGin7SKEAejo69I4onIufQtASXVoHduvXqA/exec';
 
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
@@ -240,16 +232,14 @@ let state = {
   openCategories: new Set(), adminView: 'items', staffList: null
 };
 
-const gasCache = {};
 const NO_CACHE = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
   'getStaffList','getCategories','addItem','updateItem','deleteItem','reorderItem',
-  'addCategory','addStaff','updateStaff','deleteStaff'];
+  'addCategory','addStaff','updateStaff','deleteStaff','reorderCategory'];
+const gasCache = {};
 
 function callGAS(func, params) {
   const cacheKey = func + (params ? JSON.stringify(params) : '');
-  if (NO_CACHE.indexOf(func) === -1 && gasCache[cacheKey]) {
-    return Promise.resolve(gasCache[cacheKey]);
-  }
+  if (NO_CACHE.indexOf(func) === -1 && gasCache[cacheKey]) return Promise.resolve(gasCache[cacheKey]);
   return new Promise(function(resolve, reject) {
     const callbackName = 'cb_' + func + '_' + Date.now();
     const script = document.createElement('script');
@@ -265,16 +255,9 @@ function callGAS(func, params) {
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
       if (data.error) reject(new Error(data.error));
-      else {
-        if (NO_CACHE.indexOf(func) === -1) gasCache[cacheKey] = data.result;
-        resolve(data.result);
-      }
+      else { if (NO_CACHE.indexOf(func) === -1) gasCache[cacheKey] = data.result; resolve(data.result); }
     };
-    script.onerror = function() {
-      clearTimeout(timer);
-      delete window[callbackName];
-      reject(new Error('通信エラー'));
-    };
+    script.onerror = function() { clearTimeout(timer); delete window[callbackName]; reject(new Error('通信エラー')); };
     script.src = url;
     document.body.appendChild(script);
   });
@@ -328,46 +311,23 @@ function initApp() {
   document.getElementById('userNameLabel').textContent = state.user.name;
   document.getElementById('roleBadge').textContent = roleLabels[state.user.role] || state.user.role;
   document.getElementById('roleBadge').className = 'role-badge ' + (roleClasses[state.user.role] || 'role-trainer');
-
   const role = state.user.role;
   if (role === '新スタッフ') {
     state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name }];
     state.currentTrainee = state.user.traineeId;
     Promise.all([callGAS('getCategories'), callGAS('getProgress', { traineeId: state.user.traineeId })])
-      .then(function(results) {
-        state.categories = results[0];
-        if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
-        state.data[state.user.traineeId] = results[1];
-        render();
-      }).catch(showError);
+      .then(function(results) { state.categories = results[0]; if (state.categories.length > 0) state.currentCategory = state.categories[0].id; state.data[state.user.traineeId] = results[1]; render(); }).catch(showError);
   } else if (role === '管理職' || role === '店長') {
     Promise.all([callGAS('getCategories'), callGAS('getTrainees'), callGAS('getAllProgress')])
-      .then(function(results) {
-        state.categories = results[0];
-        if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
-        state.trainees = results[1];
-        state.data = results[2];
-        if (state.trainees.length > 0) state.currentTrainee = getAssignedTrainee(state.trainees);
-        render();
-      }).catch(showError);
+      .then(function(results) { state.categories = results[0]; if (state.categories.length > 0) state.currentCategory = state.categories[0].id; state.trainees = results[1]; state.data = results[2]; if (state.trainees.length > 0) state.currentTrainee = getAssignedTrainee(state.trainees); render(); }).catch(showError);
   } else {
     Promise.all([callGAS('getCategories'), callGAS('getTrainees')])
-      .then(function(results) {
-        state.categories = results[0];
-        if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
-        state.trainees = results[1];
-        if (state.trainees.length > 0) {
-          state.currentTrainee = getAssignedTrainee(state.trainees);
-          return callGAS('getProgress', { traineeId: state.currentTrainee })
-            .then(function(progress) { state.data[state.currentTrainee] = progress; render(); });
-        } else { render(); }
-      }).catch(showError);
+      .then(function(results) { state.categories = results[0]; if (state.categories.length > 0) state.currentCategory = state.categories[0].id; state.trainees = results[1]; if (state.trainees.length > 0) { state.currentTrainee = getAssignedTrainee(state.trainees); return callGAS('getProgress', { traineeId: state.currentTrainee }).then(function(progress) { state.data[state.currentTrainee] = progress; render(); }); } else { render(); } }).catch(showError);
   }
 }
 
 function loadProgressData(traineeId) {
-  return callGAS('getProgress', { traineeId })
-    .then(function(progress) { state.data[traineeId] = progress; render(); });
+  return callGAS('getProgress', { traineeId }).then(function(progress) { state.data[traineeId] = progress; render(); });
 }
 
 function getRecord(traineeId, itemId) {
@@ -415,20 +375,12 @@ function renderMain() {
   const isNew = role === '新スタッフ';
   const canEdit = role === 'トレーナー' || role === '店長';
   let html = '';
-
-  if (isAdmin && state.view === 'admin') {
-    document.getElementById('main').innerHTML = renderAdmin();
-    return;
-  }
-
+  if (isAdmin && state.view === 'admin') { document.getElementById('main').innerHTML = renderAdmin(); initDrag(); return; }
   if (!isNew) {
     html += '<div class="trainee-bar"><span class="trainee-label">新スタッフ：</span>';
-    state.trainees.forEach(function(t) {
-      html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>';
-    });
+    state.trainees.forEach(function(t) { html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>'; });
     html += '</div>';
   }
-
   if (isManager) {
     html += '<div class="view-tabs">';
     html += '<button class="view-tab ' + (state.view === 'overview' ? 'active' : '') + '" onclick="setView(\'overview\')">📊 全体一覧</button>';
@@ -436,12 +388,7 @@ function renderMain() {
     if (isAdmin) html += '<button class="view-tab ' + (state.view === 'admin' ? 'active' : '') + '" onclick="setView(\'admin\')">⚙️ 管理</button>';
     html += '</div>';
   }
-
-  if (isManager && state.view === 'overview') {
-    html += renderOverview();
-  } else {
-    html += renderDetail(canEdit);
-  }
+  if (isManager && state.view === 'overview') { html += renderOverview(); } else { html += renderDetail(canEdit); }
   document.getElementById('main').innerHTML = html;
 }
 
@@ -450,11 +397,7 @@ function renderAdmin() {
   html += '<button class="admin-tab ' + (state.adminView === 'items' ? 'active' : '') + '" onclick="setAdminView(\'items\')">📚 教育項目</button>';
   html += '<button class="admin-tab ' + (state.adminView === 'staff' ? 'active' : '') + '" onclick="setAdminView(\'staff\')">👥 スタッフ</button>';
   html += '</div>';
-  if (state.adminView === 'items') {
-    html += renderAdminItems();
-  } else {
-    html += renderAdminStaff();
-  }
+  if (state.adminView === 'items') { html += renderAdminItems(); } else { html += renderAdminStaff(); }
   return html;
 }
 
@@ -462,54 +405,169 @@ function renderAdminItems() {
   let html = '';
   html += '<div class="admin-section">';
   html += '<div class="admin-section-head"><span class="admin-section-title">カテゴリ追加</span></div>';
-  html += '<div class="admin-form">';
-  html += '<input class="admin-input" id="newCategoryName" placeholder="新しいカテゴリ名" style="flex:1">';
-  html += '<button class="admin-btn primary" onclick="doAddCategory()">追加</button>';
-  html += '</div></div>';
+  html += '<div class="admin-form"><input class="admin-input" id="newCategoryName" placeholder="新しいカテゴリ名" style="flex:1"><button class="admin-btn primary" onclick="doAddCategory()">追加</button></div></div>';
 
-  state.categories.forEach(function(cat) {
-    html += '<div class="admin-section">';
-    html += '<div class="admin-section-head"><span class="admin-section-title">📁 ' + cat.name + '（' + cat.items.length + '項目）</span></div>';
-    cat.items.forEach(function(item, idx) {
-      html += '<div class="admin-item-row">';
+  html += '<div id="cat-list">';
+  state.categories.forEach(function(cat, catIdx) {
+    html += '<div class="admin-section" data-cat-id="' + cat.id + '" data-cat-idx="' + catIdx + '" draggable="true">';
+    html += '<div class="admin-section-head" style="cursor:default">';
+    html += '<span class="admin-section-title"><span class="drag-handle" title="ドラッグしてカテゴリを並び替え">⠿</span> 📁 ' + cat.name + '（' + cat.items.length + '項目）</span>';
+    html += '</div>';
+    html += '<div class="item-list" data-cat-id="' + cat.id + '">';
+    cat.items.forEach(function(item) {
+      html += '<div class="admin-item-row" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" draggable="true">';
+      html += '<span class="drag-handle" title="ドラッグして並び替え">⠿</span>';
       html += '<span class="admin-item-name" id="item-name-' + item.id + '">' + item.name + '</span>';
       html += '<button class="admin-btn" onclick="startEditItem(\'' + item.id + '\',\'' + item.name.replace(/'/g, "\\'") + '\')">編集</button>';
-      if (idx > 0) html += '<button class="admin-btn" onclick="doReorderItem(\'' + item.id + '\',\'up\')">↑</button>';
-      if (idx < cat.items.length - 1) html += '<button class="admin-btn" onclick="doReorderItem(\'' + item.id + '\',\'down\')">↓</button>';
       html += '<button class="admin-btn danger" onclick="doDeleteItem(\'' + item.id + '\',\'' + item.name.replace(/'/g, "\\'") + '\')">削除</button>';
       html += '</div>';
     });
-    html += '<div class="admin-form">';
-    html += '<input class="admin-input" id="newItem-' + cat.id + '" placeholder="新しい項目名" style="flex:1">';
-    html += '<button class="admin-btn primary" onclick="doAddItem(\'' + cat.id + '\')">追加</button>';
-    html += '</div></div>';
+    html += '</div>';
+    html += '<div class="admin-form"><input class="admin-input" id="newItem-' + cat.id + '" placeholder="新しい項目名" style="flex:1"><button class="admin-btn primary" onclick="doAddItem(\'' + cat.id + '\')">追加</button></div>';
+    html += '</div>';
   });
+  html += '</div>';
   return html;
+}
+
+// ===== ドラッグ&ドロップ =====
+function initDrag() {
+  // 項目のドラッグ
+  document.querySelectorAll('.admin-item-row[draggable]').forEach(function(row) {
+    row.addEventListener('dragstart', function(e) {
+      e.dataTransfer.setData('type', 'item');
+      e.dataTransfer.setData('itemId', row.dataset.itemId);
+      e.dataTransfer.setData('catId', row.dataset.catId);
+      row.classList.add('dragging');
+    });
+    row.addEventListener('dragend', function() {
+      row.classList.remove('dragging');
+      document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el) {
+        el.classList.remove('drag-over-top','drag-over-bottom');
+      });
+    });
+    row.addEventListener('dragover', function(e) {
+      const type = e.dataTransfer.types.includes('type') ? null : '';
+      e.preventDefault();
+      document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el) {
+        el.classList.remove('drag-over-top','drag-over-bottom');
+      });
+      const rect = row.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) { row.classList.add('drag-over-top'); } else { row.classList.add('drag-over-bottom'); }
+    });
+    row.addEventListener('dragleave', function() {
+      row.classList.remove('drag-over-top','drag-over-bottom');
+    });
+    row.addEventListener('drop', function(e) {
+      e.preventDefault();
+      row.classList.remove('drag-over-top','drag-over-bottom');
+      const draggedItemId = e.dataTransfer.getData('itemId');
+      const draggedCatId = e.dataTransfer.getData('catId');
+      const targetItemId = row.dataset.itemId;
+      const targetCatId = row.dataset.catId;
+      if (draggedItemId === targetItemId) return;
+
+      const rect = row.getBoundingClientRect();
+      const insertBefore = e.clientY < rect.top + rect.height / 2;
+
+      // state更新
+      const srcCat = state.categories.find(function(c) { return c.id === draggedCatId; });
+      const tgtCat = state.categories.find(function(c) { return c.id === targetCatId; });
+      if (!srcCat || !tgtCat) return;
+
+      const draggedItem = srcCat.items.find(function(i) { return i.id === draggedItemId; });
+      if (!draggedItem) return;
+      srcCat.items = srcCat.items.filter(function(i) { return i.id !== draggedItemId; });
+
+      const tgtIdx = tgtCat.items.findIndex(function(i) { return i.id === targetItemId; });
+      tgtCat.items.splice(insertBefore ? tgtIdx : tgtIdx + 1, 0, draggedItem);
+
+      document.getElementById('main').innerHTML = renderAdmin();
+      initDrag();
+
+      // GASに保存（同カテゴリのみ対応）
+      if (draggedCatId === targetCatId) {
+        const newIdx = tgtCat.items.findIndex(function(i) { return i.id === draggedItemId; });
+        const oldIdx = newIdx; // 移動後なので裏で全順序を送る
+        saveItemOrder(targetCatId);
+      }
+    });
+  });
+
+  // カテゴリのドラッグ
+  document.querySelectorAll('#cat-list > .admin-section[draggable]').forEach(function(sec) {
+    sec.addEventListener('dragstart', function(e) {
+      if (e.target.classList.contains('admin-item-row')) return;
+      e.dataTransfer.setData('type', 'category');
+      e.dataTransfer.setData('catId', sec.dataset.catId);
+      sec.classList.add('dragging');
+      e.stopPropagation();
+    });
+    sec.addEventListener('dragend', function() {
+      sec.classList.remove('dragging');
+      document.querySelectorAll('.cat-drag-over').forEach(function(el) { el.classList.remove('cat-drag-over'); });
+    });
+    sec.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelectorAll('.cat-drag-over').forEach(function(el) { el.classList.remove('cat-drag-over'); });
+      sec.classList.add('cat-drag-over');
+    });
+    sec.addEventListener('dragleave', function(e) {
+      if (!sec.contains(e.relatedTarget)) sec.classList.remove('cat-drag-over');
+    });
+    sec.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      sec.classList.remove('cat-drag-over');
+      const type = e.dataTransfer.getData('type');
+      if (type !== 'category') return;
+      const draggedCatId = e.dataTransfer.getData('catId');
+      const targetCatId = sec.dataset.catId;
+      if (draggedCatId === targetCatId) return;
+
+      const draggedIdx = state.categories.findIndex(function(c) { return c.id === draggedCatId; });
+      const targetIdx = state.categories.findIndex(function(c) { return c.id === targetCatId; });
+      if (draggedIdx === -1 || targetIdx === -1) return;
+
+      const dragged = state.categories.splice(draggedIdx, 1)[0];
+      const newTargetIdx = state.categories.findIndex(function(c) { return c.id === targetCatId; });
+      state.categories.splice(newTargetIdx + 1, 0, dragged);
+
+      document.getElementById('main').innerHTML = renderAdmin();
+      initDrag();
+      saveCategoryOrder();
+    });
+  });
+}
+
+// カテゴリ内の項目順をGASに保存
+function saveItemOrder(catId) {
+  const cat = state.categories.find(function(c) { return c.id === catId; });
+  if (!cat) return;
+  const orderedIds = cat.items.map(function(i) { return i.id; });
+  callGAS('saveItemOrder', { catId, orderedIds })
+    .catch(function(e) { showToast('順番の保存失敗: ' + e.message, 'error'); });
+}
+
+// カテゴリ順をGASに保存
+function saveCategoryOrder() {
+  const orderedIds = state.categories.map(function(c) { return c.id; });
+  callGAS('saveCategoryOrder', { orderedIds })
+    .catch(function(e) { showToast('カテゴリ順の保存失敗: ' + e.message, 'error'); });
 }
 
 function renderAdminStaff() {
   if (!state.staffList) {
-    callGAS('getStaffList').then(function(list) {
-      state.staffList = list;
-      document.getElementById('main').innerHTML = renderAdmin();
-    }).catch(showError);
+    callGAS('getStaffList').then(function(list) { state.staffList = list; document.getElementById('main').innerHTML = renderAdmin(); }).catch(showError);
     return '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
   }
-
-  const roleColors = {
-    '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)',
-    'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)',
-    '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)',
-    '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)'
-  };
-
-  let html = '<div class="admin-section">';
-  html += '<div class="admin-section-head"><span class="admin-section-title">スタッフ一覧</span></div>';
+  const roleColors = { '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)', 'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)', '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)', '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)' };
+  let html = '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ一覧</span></div>';
   state.staffList.forEach(function(s) {
     html += '<div class="admin-item-row">';
-    html += '<span class="admin-item-name">';
-    html += '<span style="' + (roleColors[s.role]||'') + ';border-radius:10px;padding:2px 6px;font-size:0.65rem;margin-right:6px;">' + s.role + '</span>';
-    html += s.name + '（' + s.staffId + '）';
+    html += '<span class="admin-item-name"><span style="' + (roleColors[s.role]||'') + ';border-radius:10px;padding:2px 6px;font-size:0.65rem;margin-right:6px;">' + s.role + '</span>' + s.name + '（' + s.staffId + '）';
     if (s.traineeId) html += ' <span style="font-size:0.7rem;color:var(--text3)">担当:' + s.traineeId + '</span>';
     html += '</span>';
     html += '<button class="admin-btn" onclick="startEditStaff(\'' + s.staffId + '\')">編集</button>';
@@ -521,10 +579,7 @@ function renderAdminStaff() {
     html += '</div>';
   });
   html += '</div>';
-
-  // スタッフ追加フォーム
-  html += '<div class="admin-section">';
-  html += '<div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
+  html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:10px;">';
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
   html += '<input class="admin-input" id="newStaffId" placeholder="社員番号" style="width:120px">';
@@ -533,15 +588,9 @@ function renderAdminStaff() {
   html += '</div>';
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">';
   html += '<select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()">';
-  html += '<option value="新スタッフ">新スタッフ</option>';
-  html += '<option value="トレーナー">トレーナー</option>';
-  html += '<option value="店長">店長</option>';
-  html += '<option value="管理職">管理職</option>';
+  html += '<option value="新スタッフ">新スタッフ</option><option value="トレーナー">トレーナー</option><option value="店長">店長</option><option value="管理職">管理職</option>';
   html += '</select>';
-  html += '<div style="flex:1;min-width:160px;">';
-  html += '<input class="admin-input" id="newStaffTraineeId" placeholder="新人ID（例：trainee001）" style="width:100%">';
-  html += '<div class="admin-hint" id="traineeIdHint">新スタッフ：本人のID / トレーナー・店長：担当する新スタッフのID</div>';
-  html += '</div>';
+  html += '<div style="flex:1;min-width:160px;"><input class="admin-input" id="newStaffTraineeId" placeholder="新人ID（例：trainee001）" style="width:100%"><div class="admin-hint" id="traineeIdHint">新スタッフ：本人のID / トレーナー・店長：担当する新スタッフのID</div></div>';
   html += '<input class="admin-input" id="newStaffYear" placeholder="入社年度" style="width:100px" type="number">';
   html += '</div>';
   html += '<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button>';
@@ -550,49 +599,25 @@ function renderAdminStaff() {
 }
 
 // ===== 管理職操作 =====
-function reloadCategories() {
-  return callGAS('getCategories').then(function(cats) {
-    state.categories = cats;
-    document.getElementById('main').innerHTML = renderAdmin();
-  });
-}
-
-function reloadStaff() {
-  state.staffList = null;
-  document.getElementById('main').innerHTML = renderAdmin();
-}
-
-function setAdminView(v) {
-  state.adminView = v;
-  state.staffList = null;
-  document.getElementById('main').innerHTML = renderAdmin();
-}
-
+function reloadStaff() { state.staffList = null; document.getElementById('main').innerHTML = renderAdmin(); }
+function setAdminView(v) { state.adminView = v; state.staffList = null; document.getElementById('main').innerHTML = renderAdmin(); if (v === 'items') initDrag(); }
 function updateTraineeIdHint() {
   const role = document.getElementById('newStaffRole').value;
   const hint = document.getElementById('traineeIdHint');
   const input = document.getElementById('newStaffTraineeId');
   if (!hint || !input) return;
-  if (role === '新スタッフ') {
-    hint.textContent = '新スタッフ本人のID（例：trainee001）';
-    input.placeholder = '新人ID（例：trainee001）';
-  } else if (role === 'トレーナー' || role === '店長') {
-    hint.textContent = '担当する新スタッフのID（例：trainee001）';
-    input.placeholder = '担当新人ID（例：trainee001）';
-  } else {
-    hint.textContent = '不要な場合は空白のままでOK';
-    input.placeholder = '担当新人ID（任意）';
-  }
+  if (role === '新スタッフ') { hint.textContent = '新スタッフ本人のID（例：trainee001）'; input.placeholder = '新人ID（例：trainee001）'; }
+  else if (role === 'トレーナー' || role === '店長') { hint.textContent = '担当する新スタッフのID（例：trainee001）'; input.placeholder = '担当新人ID（例：trainee001）'; }
+  else { hint.textContent = '不要な場合は空白のままでOK'; input.placeholder = '担当新人ID（任意）'; }
 }
 
 function doAddCategory() {
   const name = document.getElementById('newCategoryName').value.trim();
   if (!name) return;
-  // 即座に画面更新
   state.categories.push({ id: name, name: name, items: [] });
   document.getElementById('main').innerHTML = renderAdmin();
+  initDrag();
   showToast('カテゴリを追加しました', 'success');
-  // 裏で保存
   callGAS('addCategory', { categoryName: name }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -600,21 +625,17 @@ function doAddItem(categoryId) {
   const input = document.getElementById('newItem-' + categoryId);
   const name = input ? input.value.trim() : '';
   if (!name) return;
-  // 仮IDで即座に画面更新
   const tempId = 'temp_' + Date.now();
   const cat = state.categories.find(function(c) { return c.id === categoryId; });
   if (cat) cat.items.push({ id: tempId, name: name });
   document.getElementById('main').innerHTML = renderAdmin();
+  initDrag();
   showToast('項目を追加しました', 'success');
-  // 裏で保存して正式IDに更新
   callGAS('addItem', { category: categoryId, itemName: name })
     .then(function(result) {
       if (result && result.itemId) {
         const c = state.categories.find(function(c) { return c.id === categoryId; });
-        if (c) {
-          const item = c.items.find(function(i) { return i.id === tempId; });
-          if (item) item.id = result.itemId;
-        }
+        if (c) { const item = c.items.find(function(i) { return i.id === tempId; }); if (item) item.id = result.itemId; }
       }
     }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
@@ -632,44 +653,20 @@ function doUpdateItem(itemId) {
   const input = document.getElementById('edit-item-' + itemId);
   const name = input ? input.value.trim() : '';
   if (!name) return;
-  // 即座に画面更新
-  state.categories.forEach(function(cat) {
-    cat.items.forEach(function(item) {
-      if (item.id === itemId) item.name = name;
-    });
-  });
+  state.categories.forEach(function(cat) { cat.items.forEach(function(item) { if (item.id === itemId) item.name = name; }); });
   document.getElementById('main').innerHTML = renderAdmin();
+  initDrag();
   showToast('更新しました', 'success');
-  // 裏で保存
   callGAS('updateItem', { itemId, itemName: name }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doDeleteItem(itemId, itemName) {
   if (!confirm('「' + itemName + '」を削除しますか？')) return;
-  // 即座に画面更新
-  state.categories.forEach(function(cat) {
-    cat.items = cat.items.filter(function(item) { return item.id !== itemId; });
-  });
+  state.categories.forEach(function(cat) { cat.items = cat.items.filter(function(item) { return item.id !== itemId; }); });
   document.getElementById('main').innerHTML = renderAdmin();
+  initDrag();
   showToast('削除しました', 'success');
-  // 裏で保存
   callGAS('deleteItem', { itemId }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
-}
-
-function doReorderItem(itemId, direction) {
-  // 即座に画面更新
-  state.categories.forEach(function(cat) {
-    const idx = cat.items.findIndex(function(i) { return i.id === itemId; });
-    if (idx === -1) return;
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= cat.items.length) return;
-    const tmp = cat.items[idx];
-    cat.items[idx] = cat.items[swapIdx];
-    cat.items[swapIdx] = tmp;
-  });
-  document.getElementById('main').innerHTML = renderAdmin();
-  // 裏で保存
-  callGAS('reorderItem', { itemId, direction }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doAddStaff() {
@@ -680,14 +677,10 @@ function doAddStaff() {
   const traineeId = document.getElementById('newStaffTraineeId').value.trim();
   const year = document.getElementById('newStaffYear').value.trim();
   if (!staffId || !password || !name) { showToast('社員番号・パスワード・氏名は必須です', 'error'); return; }
-  // 即座に画面更新
-  const newStaff = { staffId, name, role, traineeId, year, active: role === '新スタッフ' };
-  if (state.staffList) state.staffList.push(newStaff);
+  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ' });
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('スタッフを追加しました', 'success');
-  // 裏で保存
-  callGAS('addStaff', { staffId, password, name, role, traineeId, year })
-    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('addStaff', { staffId, password, name, role, traineeId, year }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function startEditStaff(staffId) {
@@ -718,35 +711,27 @@ function doUpdateStaff(staffId) {
   const year = document.getElementById('es-year').value.trim();
   const active = s ? s.active : false;
   if (!name) { showToast('氏名は必須です', 'error'); return; }
-  // 即座に画面更新
   if (s) { s.name = name; s.role = role; s.traineeId = traineeId; s.year = year; }
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('更新しました', 'success');
-  // 裏で保存
-  callGAS('updateStaff', { staffId, name, role, traineeId, year, active })
-    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('updateStaff', { staffId, name, role, traineeId, year, active }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doToggleActive(staffId, currentActive) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
   const newActive = !currentActive;
-  // 即座に画面更新
   s.active = newActive;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
-  // 裏で保存
-  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive })
-    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doDeleteStaff(staffId, staffName) {
   if (!confirm('「' + staffName + '」を削除しますか？\n※この操作は取り消せません。')) return;
-  // 即座に画面更新
   if (state.staffList) state.staffList = state.staffList.filter(function(x) { return x.staffId !== staffId; });
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('削除しました', 'success');
-  // 裏で保存
   callGAS('deleteStaff', { staffId }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -775,7 +760,6 @@ function renderDetail(canEdit) {
   const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
   const traineeName = (state.trainees.find(function(t) { return t.traineeId === traineeId; }) || {}).name || '';
   const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
-
   let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の進捗</div>';
   html += '<div class="section-stats"><div class="stat-item"><div class="stat-num">' + pct + '%</div><div class="stat-label">指導済み</div></div>';
   html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
@@ -786,7 +770,6 @@ function renderDetail(canEdit) {
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
   html += '</div>';
-
   state.categories.forEach(function(cat) {
     const isOpen = state.openCategories.has(cat.id);
     const p = getCategoryProgress(traineeId, cat.id);
@@ -796,16 +779,13 @@ function renderDetail(canEdit) {
     html += '<span class="category-name">' + cat.name + '</span><span class="category-count">' + p.taught + '/' + p.total + '</span></div>';
     html += '<div style="display:flex;align-items:center;gap:8px"><div class="category-mini-bar"><div class="category-mini-fill" style="width:' + cpct + '%"></div></div>';
     html += '<span style="font-size:0.7rem;color:var(--text3)">' + cpct + '%</span></div></div>';
-
     if (isOpen) {
       html += '<div class="item-row-header"><div>業務内容</div><div>指導日 / 習得度①</div><div>再指導日 / 習得度②</div></div>';
       cat.items.forEach(function(item) {
         const rec = getRecord(traineeId, item.id);
         const status = rec.retaughtDate ? 'done' : rec.taughtDate ? 'taught' : 'none';
         const statusLabel = status === 'done' ? '再指導済み' : status === 'taught' ? '指導済み' : '';
-        const statusStyle = status === 'done'
-          ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
-          : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
+        const statusStyle = status === 'done' ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);' : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
         html += '<div class="item-row"><div class="item-name-wrap"><span class="item-name">' + item.name + '</span>';
         if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
         html += '</div><div class="item-checks">';
@@ -815,24 +795,19 @@ function renderDetail(canEdit) {
           html += '<div class="check-box">' + (rec.taughtDate ? '✓' : '') + '</div>';
           html += '<span class="taught-date-label">' + (rec.taughtDate || '未指導') + '</span></label>';
           html += '<div class="grade-select">';
-          ['A','B','C','D'].forEach(function(g) {
-            html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>';
-          });
+          ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>'; });
           html += '</div>';
         } else {
           html += '<div style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</div>';
           html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</div>';
         }
-        html += '</div>';
-        html += '<div class="check-col">';
+        html += '</div><div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
           html += '<div class="check-box" style="' + (rec.retaughtDate ? 'background:var(--accent2);border-color:var(--accent2)' : '') + '">' + (rec.retaughtDate ? '✓' : '') + '</div>';
           html += '<span class="taught-date-label" style="' + (rec.retaughtDate ? 'color:var(--accent2)' : '') + '">' + (rec.retaughtDate || '未実施') + '</span></label>';
           html += '<div class="grade-select">';
-          ['A','B','C','D'].forEach(function(g) {
-            html += '<button class="grade-btn ' + (rec.grade2 === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade2\',\'' + (rec.grade2 === g ? '' : g) + '\')">' + g + '</button>';
-          });
+          ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade2 === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade2\',\'' + (rec.grade2 === g ? '' : g) + '\')">' + g + '</button>'; });
           html += '</div>';
         } else {
           html += '<div style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</div>';
@@ -848,16 +823,11 @@ function renderDetail(canEdit) {
 
 function selectTrainee(traineeId) {
   state.currentTrainee = traineeId;
-  if (!state.data[traineeId]) {
-    document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
-    loadProgressData(traineeId);
-  } else { render(); }
+  if (!state.data[traineeId]) { document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>'; loadProgressData(traineeId); } else { render(); }
 }
 
 function selectCategory(id) {
-  state.currentCategory = id;
-  state.openCategories.add(id);
-  render();
+  state.currentCategory = id; state.openCategories.add(id); render();
   setTimeout(function() {
     const blocks = document.querySelectorAll('.category-block');
     const idx = state.categories.findIndex(function(c) { return c.id === id; });
@@ -865,32 +835,12 @@ function selectCategory(id) {
   }, 50);
 }
 
-function toggleCategory(id) {
-  state.openCategories.has(id) ? state.openCategories.delete(id) : state.openCategories.add(id);
-  render();
-}
+function toggleCategory(id) { state.openCategories.has(id) ? state.openCategories.delete(id) : state.openCategories.add(id); render(); }
+function setView(v) { state.view = v; renderSidebar(); renderMain(); if (v === 'admin') setTimeout(initDrag, 50); }
 
-function setView(v) { state.view = v; renderSidebar(); renderMain(); }
-
-function toggleTaught(traineeId, itemId) {
-  const rec = getRecord(traineeId, itemId);
-  const value = rec.taughtDate ? '' : todayStr();
-  rec.taughtDate = value; render();
-  saveField(traineeId, itemId, 'taughtDate', value);
-}
-
-function toggleRetaught(traineeId, itemId) {
-  const rec = getRecord(traineeId, itemId);
-  const value = rec.retaughtDate ? '' : todayStr();
-  rec.retaughtDate = value; render();
-  saveField(traineeId, itemId, 'retaughtDate', value);
-}
-
-function updateField(traineeId, itemId, field, value) {
-  const rec = getRecord(traineeId, itemId);
-  rec[field] = value; render();
-  saveField(traineeId, itemId, field, value);
-}
+function toggleTaught(traineeId, itemId) { const rec = getRecord(traineeId, itemId); const value = rec.taughtDate ? '' : todayStr(); rec.taughtDate = value; render(); saveField(traineeId, itemId, 'taughtDate', value); }
+function toggleRetaught(traineeId, itemId) { const rec = getRecord(traineeId, itemId); const value = rec.retaughtDate ? '' : todayStr(); rec.retaughtDate = value; render(); saveField(traineeId, itemId, 'retaughtDate', value); }
+function updateField(traineeId, itemId, field, value) { const rec = getRecord(traineeId, itemId); rec[field] = value; render(); saveField(traineeId, itemId, field, value); }
 
 function saveField(traineeId, itemId, field, value) {
   callGAS('saveProgress', { traineeId, itemId, field, value })
@@ -917,12 +867,8 @@ function showError(e) {
 (function() {
   const saved = localStorage.getItem('loginUser');
   if (saved) {
-    try {
-      state.user = JSON.parse(saved);
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('appScreen').style.display = 'block';
-      initApp();
-    } catch(e) { localStorage.removeItem('loginUser'); }
+    try { state.user = JSON.parse(saved); document.getElementById('loginScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'block'; initApp(); }
+    catch(e) { localStorage.removeItem('loginUser'); }
   }
 })();
 </script>
