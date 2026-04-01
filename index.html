@@ -588,22 +588,35 @@ function updateTraineeIdHint() {
 function doAddCategory() {
   const name = document.getElementById('newCategoryName').value.trim();
   if (!name) return;
-  callGAS('addCategory', { categoryName: name })
-    .then(function(result) {
-      if (result.success) { showToast('カテゴリを追加しました', 'success'); reloadCategories(); }
-      else { showToast(result.error || '追加失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+  // 即座に画面更新
+  state.categories.push({ id: name, name: name, items: [] });
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('カテゴリを追加しました', 'success');
+  // 裏で保存
+  callGAS('addCategory', { categoryName: name }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doAddItem(categoryId) {
   const input = document.getElementById('newItem-' + categoryId);
   const name = input ? input.value.trim() : '';
   if (!name) return;
+  // 仮IDで即座に画面更新
+  const tempId = 'temp_' + Date.now();
+  const cat = state.categories.find(function(c) { return c.id === categoryId; });
+  if (cat) cat.items.push({ id: tempId, name: name });
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('項目を追加しました', 'success');
+  // 裏で保存して正式IDに更新
   callGAS('addItem', { category: categoryId, itemName: name })
     .then(function(result) {
-      if (result.success) { showToast('項目を追加しました', 'success'); reloadCategories(); }
-      else { showToast(result.error || '追加失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+      if (result && result.itemId) {
+        const c = state.categories.find(function(c) { return c.id === categoryId; });
+        if (c) {
+          const item = c.items.find(function(i) { return i.id === tempId; });
+          if (item) item.id = result.itemId;
+        }
+      }
+    }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function startEditItem(itemId, currentName) {
@@ -619,28 +632,44 @@ function doUpdateItem(itemId) {
   const input = document.getElementById('edit-item-' + itemId);
   const name = input ? input.value.trim() : '';
   if (!name) return;
-  callGAS('updateItem', { itemId, itemName: name })
-    .then(function(result) {
-      if (result.success) { showToast('更新しました', 'success'); reloadCategories(); }
-      else { showToast(result.error || '更新失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+  // 即座に画面更新
+  state.categories.forEach(function(cat) {
+    cat.items.forEach(function(item) {
+      if (item.id === itemId) item.name = name;
+    });
+  });
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('更新しました', 'success');
+  // 裏で保存
+  callGAS('updateItem', { itemId, itemName: name }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doDeleteItem(itemId, itemName) {
   if (!confirm('「' + itemName + '」を削除しますか？')) return;
-  callGAS('deleteItem', { itemId })
-    .then(function(result) {
-      if (result.success) { showToast('削除しました', 'success'); reloadCategories(); }
-      else { showToast(result.error || '削除失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+  // 即座に画面更新
+  state.categories.forEach(function(cat) {
+    cat.items = cat.items.filter(function(item) { return item.id !== itemId; });
+  });
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('削除しました', 'success');
+  // 裏で保存
+  callGAS('deleteItem', { itemId }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doReorderItem(itemId, direction) {
-  callGAS('reorderItem', { itemId, direction })
-    .then(function(result) {
-      if (result.success) { showToast('並び替えました', 'success'); reloadCategories(); }
-      else { showToast(result.error || '並び替え失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+  // 即座に画面更新
+  state.categories.forEach(function(cat) {
+    const idx = cat.items.findIndex(function(i) { return i.id === itemId; });
+    if (idx === -1) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= cat.items.length) return;
+    const tmp = cat.items[idx];
+    cat.items[idx] = cat.items[swapIdx];
+    cat.items[swapIdx] = tmp;
+  });
+  document.getElementById('main').innerHTML = renderAdmin();
+  // 裏で保存
+  callGAS('reorderItem', { itemId, direction }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doAddStaff() {
@@ -651,11 +680,14 @@ function doAddStaff() {
   const traineeId = document.getElementById('newStaffTraineeId').value.trim();
   const year = document.getElementById('newStaffYear').value.trim();
   if (!staffId || !password || !name) { showToast('社員番号・パスワード・氏名は必須です', 'error'); return; }
+  // 即座に画面更新
+  const newStaff = { staffId, name, role, traineeId, year, active: role === '新スタッフ' };
+  if (state.staffList) state.staffList.push(newStaff);
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('スタッフを追加しました', 'success');
+  // 裏で保存
   callGAS('addStaff', { staffId, password, name, role, traineeId, year })
-    .then(function(result) {
-      if (result.success) { showToast('スタッフを追加しました', 'success'); reloadStaff(); }
-      else { showToast(result.error || '追加失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function startEditStaff(staffId) {
@@ -686,31 +718,36 @@ function doUpdateStaff(staffId) {
   const year = document.getElementById('es-year').value.trim();
   const active = s ? s.active : false;
   if (!name) { showToast('氏名は必須です', 'error'); return; }
+  // 即座に画面更新
+  if (s) { s.name = name; s.role = role; s.traineeId = traineeId; s.year = year; }
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('更新しました', 'success');
+  // 裏で保存
   callGAS('updateStaff', { staffId, name, role, traineeId, year, active })
-    .then(function(result) {
-      if (result.success) { showToast('更新しました', 'success'); reloadStaff(); }
-      else { showToast(result.error || '更新失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doToggleActive(staffId, currentActive) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
   const newActive = !currentActive;
+  // 即座に画面更新
+  s.active = newActive;
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
+  // 裏で保存
   callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive })
-    .then(function(result) {
-      if (result.success) { showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success'); reloadStaff(); }
-      else { showToast(result.error || '更新失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doDeleteStaff(staffId, staffName) {
-  if (!confirm('「' + staffName + '」を削除しますか？\n※この操作は取り消せません。', 'error')) return;
-  callGAS('deleteStaff', { staffId })
-    .then(function(result) {
-      if (result.success) { showToast('削除しました', 'success'); reloadStaff(); }
-      else { showToast(result.error || '削除失敗', 'error'); }
-    }).catch(function(e) { showToast(e.message, 'error'); });
+  if (!confirm('「' + staffName + '」を削除しますか？\n※この操作は取り消せません。')) return;
+  // 即座に画面更新
+  if (state.staffList) state.staffList = state.staffList.filter(function(x) { return x.staffId !== staffId; });
+  document.getElementById('main').innerHTML = renderAdmin();
+  showToast('削除しました', 'success');
+  // 裏で保存
+  callGAS('deleteStaff', { staffId }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function renderOverview() {
