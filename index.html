@@ -743,21 +743,31 @@ function doAddStaff() {
 function startEditStaff(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  const row = event.target.closest('tr') || event.target.closest('.admin-item-row');
+  // モーダルを表示
   const roleHint = s.role === '新スタッフ' ? '本人のID' : (s.role === 'トレーナー' || s.role === '店長') ? '担当新人ID' : '担当ID（任意）';
-  row.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center;">' +
-    '<input class="admin-input" id="es-name" value="' + s.name + '" placeholder="氏名" style="flex:1;min-width:100px">' +
-    '<select class="admin-select" id="es-role">' +
+  const modal = document.createElement('div');
+  modal.id = 'editStaffModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = '<div style="background:var(--surface);border-radius:12px;padding:24px;width:100%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,0.2)">' +
+    '<div style="font-weight:700;font-size:1rem;margin-bottom:16px">スタッフ編集（' + s.staffId + '）</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">氏名</label><input class="admin-input" id="es-name" value="' + s.name + '" style="flex:1"></div>' +
+    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">役職</label><select class="admin-select" id="es-role" style="flex:1">' +
     '<option value="新スタッフ"' + (s.role==='新スタッフ'?' selected':'') + '>新スタッフ</option>' +
     '<option value="トレーナー"' + (s.role==='トレーナー'?' selected':'') + '>トレーナー</option>' +
     '<option value="店長"' + (s.role==='店長'?' selected':'') + '>店長</option>' +
     '<option value="管理職"' + (s.role==='管理職'?' selected':'') + '>管理職</option>' +
-    '</select>' +
-    '<input class="admin-input" id="es-trainee" value="' + (s.traineeId||'') + '" placeholder="' + roleHint + '" style="width:150px">' +
-    '<input class="admin-input" id="es-year" value="' + (s.year||'') + '" placeholder="入社年度" style="width:90px" type="number">' +
+    '</select></div>' +
+    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">' + roleHint + '</label><input class="admin-input" id="es-trainee" value="' + (s.traineeId||'') + '" style="flex:1"></div>' +
+    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">入社年度</label><input class="admin-input" id="es-year" value="' + (s.year||'') + '" type="number" style="flex:1"></div>' +
     '</div>' +
-    '<button class="admin-btn primary" onclick="doUpdateStaff(\'' + staffId + '\')">保存</button>' +
-    '<button class="admin-btn" onclick="reloadStaff()">キャンセル</button>';
+    '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">' +
+    '<button class="admin-btn" onclick="document.getElementById(\'editStaffModal\').remove()">キャンセル</button>' +
+    '<button class="admin-btn primary" onclick="doUpdateStaff(\'' + s.staffId + '\')">保存</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+  // モーダル外クリックで閉じる
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
 }
 
 function doUpdateStaff(staffId) {
@@ -768,10 +778,15 @@ function doUpdateStaff(staffId) {
   const year = document.getElementById('es-year').value.trim();
   const active = s ? s.active : false;
   if (!name) { showToast('氏名は必須です', 'error'); return; }
+  // モーダルを閉じて即座に画面更新
+  const modal = document.getElementById('editStaffModal');
+  if (modal) modal.remove();
   if (s) { s.name = name; s.role = role; s.traineeId = traineeId; s.year = year; }
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('更新しました', 'success');
-  callGAS('updateStaff', { staffId, name, role, traineeId, year, active }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  // 裏で保存
+  callGAS('updateStaff', { staffId, name, role, traineeId, year, active })
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doToggleActive(staffId, currentActive) {
