@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v7 -->
+<!-- v8 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -148,18 +148,19 @@
   .admin-section-title { font-size: 0.9rem; font-weight: 600; }
   .admin-item-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
   .admin-item-row:last-child { border-bottom: none; }
-  .admin-item-name { flex: 1; }
-  .admin-btn { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; color: var(--text2); white-space: nowrap; }
+  .admin-item-name { flex: 1; min-width: 0; }
+  .admin-btn { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
   .admin-btn:hover { background: var(--surface2); }
   .admin-btn.danger { color: var(--red); border-color: rgba(220,38,38,0.3); }
   .admin-btn.danger:hover { background: rgba(220,38,38,0.05); }
   .admin-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .admin-btn.primary:hover { opacity: 0.9; }
+  .admin-btn.success { color: var(--green); border-color: rgba(22,163,74,0.3); }
   .admin-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; background: var(--surface2); color: var(--text); }
   .admin-input:focus { outline: none; border-color: var(--accent); }
   .admin-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; background: var(--surface2); color: var(--text); }
   .admin-form { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; background: var(--surface2); border-top: 1px solid var(--border); align-items: center; }
-  .staff-role-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: 500; }
+  .admin-hint { font-size: 0.7rem; color: var(--text3); margin-top: 4px; }
 
   /* PC LAYOUT */
   @media (min-width: 600px) {
@@ -240,25 +241,13 @@ let state = {
 };
 
 const gasCache = {};
-
-function clearCategoryCache() {
-  Object.keys(gasCache).forEach(function(k) {
-    if (k.startsWith('getCategories')) delete gasCache[k];
-  });
-}
-
-function clearStaffCache() {
-  Object.keys(gasCache).forEach(function(k) {
-    if (k.startsWith('getStaffList')) delete gasCache[k];
-  });
-}
+const NO_CACHE = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
+  'getStaffList','getCategories','addItem','updateItem','deleteItem','reorderItem',
+  'addCategory','addStaff','updateStaff','deleteStaff'];
 
 function callGAS(func, params) {
   const cacheKey = func + (params ? JSON.stringify(params) : '');
-  const noCache = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
-    'getStaffList','getCategories','addItem','updateItem','deleteItem','reorderItem',
-    'addCategory','addStaff','updateStaff'];
-  if (noCache.indexOf(func) === -1 && gasCache[cacheKey]) {
+  if (NO_CACHE.indexOf(func) === -1 && gasCache[cacheKey]) {
     return Promise.resolve(gasCache[cacheKey]);
   }
   return new Promise(function(resolve, reject) {
@@ -277,7 +266,7 @@ function callGAS(func, params) {
       if (script.parentNode) script.parentNode.removeChild(script);
       if (data.error) reject(new Error(data.error));
       else {
-        if (noCache.indexOf(func) === -1) gasCache[cacheKey] = data.result;
+        if (NO_CACHE.indexOf(func) === -1) gasCache[cacheKey] = data.result;
         resolve(data.result);
       }
     };
@@ -526,12 +515,14 @@ function renderAdminStaff() {
     html += '<button class="admin-btn" onclick="startEditStaff(\'' + s.staffId + '\')">編集</button>';
     if (s.role === '新スタッフ') {
       const isActive = s.active === true;
-      html += '<button class="admin-btn" style="' + (isActive ? 'color:var(--green)' : 'color:var(--text3)') + '" onclick="doToggleActive(\'' + s.staffId + '\',' + isActive + ')">' + (isActive ? '在籍中' : '非在籍') + '</button>';
+      html += '<button class="admin-btn ' + (isActive ? 'success' : '') + '" onclick="doToggleActive(\'' + s.staffId + '\',' + isActive + ')">' + (isActive ? '表示中' : '非表示') + '</button>';
     }
+    html += '<button class="admin-btn danger" onclick="doDeleteStaff(\'' + s.staffId + '\',\'' + s.name.replace(/'/g, "\\'") + '\')">削除</button>';
     html += '</div>';
   });
   html += '</div>';
 
+  // スタッフ追加フォーム
   html += '<div class="admin-section">';
   html += '<div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:10px;">';
@@ -540,14 +531,17 @@ function renderAdminStaff() {
   html += '<input class="admin-input" id="newStaffPass" placeholder="パスワード" style="width:140px">';
   html += '<input class="admin-input" id="newStaffName" placeholder="氏名" style="flex:1;min-width:120px">';
   html += '</div>';
-  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-  html += '<select class="admin-select" id="newStaffRole">';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">';
+  html += '<select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()">';
   html += '<option value="新スタッフ">新スタッフ</option>';
   html += '<option value="トレーナー">トレーナー</option>';
   html += '<option value="店長">店長</option>';
   html += '<option value="管理職">管理職</option>';
   html += '</select>';
-  html += '<input class="admin-input" id="newStaffTraineeId" placeholder="新人ID（新スタッフのみ）" style="flex:1;min-width:160px">';
+  html += '<div style="flex:1;min-width:160px;">';
+  html += '<input class="admin-input" id="newStaffTraineeId" placeholder="新人ID（例：trainee001）" style="width:100%">';
+  html += '<div class="admin-hint" id="traineeIdHint">新スタッフ：本人のID / トレーナー・店長：担当する新スタッフのID</div>';
+  html += '</div>';
   html += '<input class="admin-input" id="newStaffYear" placeholder="入社年度" style="width:100px" type="number">';
   html += '</div>';
   html += '<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button>';
@@ -557,11 +551,15 @@ function renderAdminStaff() {
 
 // ===== 管理職操作 =====
 function reloadCategories() {
-  clearCategoryCache();
   return callGAS('getCategories').then(function(cats) {
     state.categories = cats;
     document.getElementById('main').innerHTML = renderAdmin();
   });
+}
+
+function reloadStaff() {
+  state.staffList = null;
+  document.getElementById('main').innerHTML = renderAdmin();
 }
 
 function setAdminView(v) {
@@ -570,15 +568,30 @@ function setAdminView(v) {
   document.getElementById('main').innerHTML = renderAdmin();
 }
 
+function updateTraineeIdHint() {
+  const role = document.getElementById('newStaffRole').value;
+  const hint = document.getElementById('traineeIdHint');
+  const input = document.getElementById('newStaffTraineeId');
+  if (!hint || !input) return;
+  if (role === '新スタッフ') {
+    hint.textContent = '新スタッフ本人のID（例：trainee001）';
+    input.placeholder = '新人ID（例：trainee001）';
+  } else if (role === 'トレーナー' || role === '店長') {
+    hint.textContent = '担当する新スタッフのID（例：trainee001）';
+    input.placeholder = '担当新人ID（例：trainee001）';
+  } else {
+    hint.textContent = '不要な場合は空白のままでOK';
+    input.placeholder = '担当新人ID（任意）';
+  }
+}
+
 function doAddCategory() {
   const name = document.getElementById('newCategoryName').value.trim();
   if (!name) return;
   callGAS('addCategory', { categoryName: name })
     .then(function(result) {
-      if (result.success) {
-        showToast('カテゴリを追加しました', 'success');
-        reloadCategories();
-      } else { showToast(result.error || '追加失敗', 'error'); }
+      if (result.success) { showToast('カテゴリを追加しました', 'success'); reloadCategories(); }
+      else { showToast(result.error || '追加失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -588,10 +601,8 @@ function doAddItem(categoryId) {
   if (!name) return;
   callGAS('addItem', { category: categoryId, itemName: name })
     .then(function(result) {
-      if (result.success) {
-        showToast('項目を追加しました', 'success');
-        reloadCategories();
-      } else { showToast(result.error || '追加失敗', 'error'); }
+      if (result.success) { showToast('項目を追加しました', 'success'); reloadCategories(); }
+      else { showToast(result.error || '追加失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -610,10 +621,8 @@ function doUpdateItem(itemId) {
   if (!name) return;
   callGAS('updateItem', { itemId, itemName: name })
     .then(function(result) {
-      if (result.success) {
-        showToast('更新しました', 'success');
-        reloadCategories();
-      } else { showToast(result.error || '更新失敗', 'error'); }
+      if (result.success) { showToast('更新しました', 'success'); reloadCategories(); }
+      else { showToast(result.error || '更新失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -621,20 +630,16 @@ function doDeleteItem(itemId, itemName) {
   if (!confirm('「' + itemName + '」を削除しますか？')) return;
   callGAS('deleteItem', { itemId })
     .then(function(result) {
-      if (result.success) {
-        showToast('削除しました', 'success');
-        reloadCategories();
-      } else { showToast(result.error || '削除失敗', 'error'); }
+      if (result.success) { showToast('削除しました', 'success'); reloadCategories(); }
+      else { showToast(result.error || '削除失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
 function doReorderItem(itemId, direction) {
   callGAS('reorderItem', { itemId, direction })
     .then(function(result) {
-      if (result.success) {
-        showToast('並び替えました', 'success');
-        reloadCategories();
-      } else { showToast('並び替え失敗', 'error'); }
+      if (result.success) { showToast('並び替えました', 'success'); reloadCategories(); }
+      else { showToast(result.error || '並び替え失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -648,11 +653,8 @@ function doAddStaff() {
   if (!staffId || !password || !name) { showToast('社員番号・パスワード・氏名は必須です', 'error'); return; }
   callGAS('addStaff', { staffId, password, name, role, traineeId, year })
     .then(function(result) {
-      if (result.success) {
-        showToast('スタッフを追加しました', 'success');
-        state.staffList = null;
-        document.getElementById('main').innerHTML = renderAdmin();
-      } else { showToast(result.error || '追加失敗', 'error'); }
+      if (result.success) { showToast('スタッフを追加しました', 'success'); reloadStaff(); }
+      else { showToast(result.error || '追加失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -660,6 +662,7 @@ function startEditStaff(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
   const row = event.target.closest('.admin-item-row');
+  const roleHint = s.role === '新スタッフ' ? '本人のID' : (s.role === 'トレーナー' || s.role === '店長') ? '担当新人ID' : '担当ID（任意）';
   row.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center;">' +
     '<input class="admin-input" id="es-name" value="' + s.name + '" placeholder="氏名" style="flex:1;min-width:100px">' +
     '<select class="admin-select" id="es-role">' +
@@ -668,11 +671,11 @@ function startEditStaff(staffId) {
     '<option value="店長"' + (s.role==='店長'?' selected':'') + '>店長</option>' +
     '<option value="管理職"' + (s.role==='管理職'?' selected':'') + '>管理職</option>' +
     '</select>' +
-    '<input class="admin-input" id="es-trainee" value="' + (s.traineeId||'') + '" placeholder="新人ID/担当ID" style="width:140px">' +
+    '<input class="admin-input" id="es-trainee" value="' + (s.traineeId||'') + '" placeholder="' + roleHint + '" style="width:150px">' +
     '<input class="admin-input" id="es-year" value="' + (s.year||'') + '" placeholder="入社年度" style="width:90px" type="number">' +
     '</div>' +
     '<button class="admin-btn primary" onclick="doUpdateStaff(\'' + staffId + '\')">保存</button>' +
-    '<button class="admin-btn" onclick="state.staffList=null;document.getElementById(\'main\').innerHTML=renderAdmin()">キャンセル</button>';
+    '<button class="admin-btn" onclick="reloadStaff()">キャンセル</button>';
 }
 
 function doUpdateStaff(staffId) {
@@ -685,11 +688,8 @@ function doUpdateStaff(staffId) {
   if (!name) { showToast('氏名は必須です', 'error'); return; }
   callGAS('updateStaff', { staffId, name, role, traineeId, year, active })
     .then(function(result) {
-      if (result.success) {
-        showToast('更新しました', 'success');
-        state.staffList = null;
-        document.getElementById('main').innerHTML = renderAdmin();
-      } else { showToast(result.error || '更新失敗', 'error'); }
+      if (result.success) { showToast('更新しました', 'success'); reloadStaff(); }
+      else { showToast(result.error || '更新失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
@@ -699,11 +699,17 @@ function doToggleActive(staffId, currentActive) {
   const newActive = !currentActive;
   callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive })
     .then(function(result) {
-      if (result.success) {
-        showToast(newActive ? '在籍中に変更しました' : '非在籍に変更しました', 'success');
-        state.staffList = null;
-        document.getElementById('main').innerHTML = renderAdmin();
-      } else { showToast(result.error || '更新失敗', 'error'); }
+      if (result.success) { showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success'); reloadStaff(); }
+      else { showToast(result.error || '更新失敗', 'error'); }
+    }).catch(function(e) { showToast(e.message, 'error'); });
+}
+
+function doDeleteStaff(staffId, staffName) {
+  if (!confirm('「' + staffName + '」を削除しますか？\n※この操作は取り消せません。', 'error')) return;
+  callGAS('deleteStaff', { staffId })
+    .then(function(result) {
+      if (result.success) { showToast('削除しました', 'success'); reloadStaff(); }
+      else { showToast(result.error || '削除失敗', 'error'); }
     }).catch(function(e) { showToast(e.message, 'error'); });
 }
 
