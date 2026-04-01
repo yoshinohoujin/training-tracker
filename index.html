@@ -743,7 +743,7 @@ function doAddStaff() {
 function startEditStaff(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  const row = event.target.closest('.admin-item-row');
+  const row = event.target.closest('tr') || event.target.closest('.admin-item-row');
   const roleHint = s.role === '新スタッフ' ? '本人のID' : (s.role === 'トレーナー' || s.role === '店長') ? '担当新人ID' : '担当ID（任意）';
   row.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center;">' +
     '<input class="admin-input" id="es-name" value="' + s.name + '" placeholder="氏名" style="flex:1;min-width:100px">' +
