@@ -171,8 +171,8 @@
   /* PC LAYOUT */
   @media (min-width: 600px) {
     .sidebar { display: block; }
-    .item-row { display: grid; grid-template-columns: 1fr 240px 240px auto; align-items: center; padding: 10px 16px; gap: 12px; }
-    .item-row-header { display: grid; grid-template-columns: 1fr 240px 240px auto; padding: 8px 16px; gap: 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
+    .item-row { display: grid; grid-template-columns: 1fr 1fr 1fr 100px; align-items: center; padding: 10px 16px; gap: 12px; }
+    .item-row-header { display: grid; grid-template-columns: 1fr 1fr 1fr 100px; padding: 8px 16px; gap: 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
     .item-checks { display: contents; }
     .check-col { display: flex; align-items: center; gap: 10px; background: transparent; padding: 0; border-radius: 0; min-width: 0; overflow: visible; }
     .taught-check { margin-bottom: 0; }
@@ -180,6 +180,8 @@
     .grade-select { gap: 4px; flex-wrap: nowrap; }
     .grade-btn { width: 30px; height: 30px; font-size: 0.78rem; }
     .taught-date-label { white-space: nowrap; }
+    .sp-only { display: none; }
+    .pc-only { display: flex; }
   }
   @media (max-width: 599px) {
     .sidebar { display: none; }
@@ -188,6 +190,9 @@
     .view-tab { flex: 1; text-align: center; }
     .admin-tabs { width: 100%; }
     .admin-tab { flex: 1; text-align: center; }
+    .sp-only { display: inline-flex; }
+    .pc-only { display: none !important; }
+    .item-name-wrap { justify-content: space-between; align-items: center; }
   }
 </style>
 </head>
@@ -772,7 +777,13 @@ function renderDetail(canEdit) {
           ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
           : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
 
-        html += '<div class="item-row"><div class="item-name-wrap"><span class="item-name">' + item.name + '</span></div>';
+        // PC版：item-name-wrapにバッジなし、スマホ版：右詰めでバッジあり
+        html += '<div class="item-row">';
+        html += '<div class="item-name-wrap" style="justify-content:space-between">';
+        html += '<span class="item-name">' + item.name + '</span>';
+        // スマホ用バッジ（PC版はCSSで非表示）
+        if (statusLabel) html += '<span class="status-badge sp-only" style="' + statusStyle + '">● ' + statusLabel + '</span>';
+        html += '</div>';
         html += '<div class="item-checks">';
         html += '<div class="check-col">';
         if (canEdit) {
@@ -800,8 +811,8 @@ function renderDetail(canEdit) {
           html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</div>';
         }
         html += '</div>';
-        // 状態バッジを最後の列に
-        html += '<div style="display:flex;align-items:center;justify-content:center;">';
+        // PC版：状態バッジを最後の列に（スマホ版は非表示）
+        html += '<div class="pc-only" style="display:flex;align-items:center;justify-content:center;">';
         if (statusLabel) { html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>'; }
         html += '</div>';
         html += '</div></div>';
