@@ -446,7 +446,7 @@ function renderAdminItems() {
     html += '<div class="admin-section" data-cat-id="' + cat.id + '" data-cat-idx="' + catIdx + '">';
     html += '<div class="admin-section-head" style="cursor:pointer" onclick="toggleAdminCat(\'' + cat.id + '\')">';
     html += '<span class="admin-section-title"><span class="drag-handle cat-drag-handle" onclick="event.stopPropagation()" title="ドラッグしてカテゴリを並び替え">⠿</span> ';
-    html += '<span class="category-chevron ' + (isOpen ? 'open' : '') + '" style="font-size:0.7rem;margin-right:4px">▼</span>';
+    html += '<span style="font-size:0.7rem;margin-right:4px;display:inline-block;transition:transform 0.2s;transform:' + (isOpen ? 'rotate(0deg)' : 'rotate(-90deg)') + '">▼</span>';
     html += '📁 ' + cat.name + '（' + cat.items.length + '項目）</span></div>';
     if (isOpen) {
       html += '<div class="item-list" data-cat-id="' + cat.id + '">';
