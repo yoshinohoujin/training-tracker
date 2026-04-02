@@ -193,6 +193,9 @@
     .sp-only { display: inline-flex; }
     .pc-only { display: none !important; }
     .item-name-wrap { justify-content: space-between; align-items: center; }
+    .check-col-readonly { display: flex; align-items: center; gap: 8px; background: var(--surface2); border-radius: 8px; padding: 6px 10px; flex: 1; }
+    .check-col-readonly .date-val { font-size: 0.8rem; }
+    .check-col-readonly .grade-val { font-weight: 700; font-size: 0.95rem; }
   }
 </style>
 </head>
@@ -794,8 +797,10 @@ function renderDetail(canEdit) {
           ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>'; });
           html += '</div>';
         } else {
-          html += '<div style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</div>';
-          html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</div>';
+          html += '<div style="display:flex;align-items:center;gap:8px;">';
+          html += '<span style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</span>';
+          html += '<span style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</span>';
+          html += '</div>';
         }
         html += '</div>';
         html += '<div class="check-col">';
@@ -807,11 +812,13 @@ function renderDetail(canEdit) {
           ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade2 === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade2\',\'' + (rec.grade2 === g ? '' : g) + '\')">' + g + '</button>'; });
           html += '</div>';
         } else {
-          html += '<div style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</div>';
-          html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</div>';
+          html += '<div style="display:flex;align-items:center;gap:8px;">';
+          html += '<span style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</span>';
+          html += '<span style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</span>';
+          html += '</div>';
         }
         html += '</div>';
-        // PC版：状態バッジを最後の列に（スマホ版は非表示）
+        // PC版：状態バッジを最後の列に
         html += '<div class="pc-only" style="display:flex;align-items:center;justify-content:center;">';
         if (statusLabel) { html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>'; }
         html += '</div>';
