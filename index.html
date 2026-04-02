@@ -258,7 +258,7 @@ const NO_CACHE = ['saveProgress','login','getProgress','getAllProgress','getTrai
   'saveItemOrder','saveCategoryOrder','setStaffEnabled'];
 const gasCache = {};
 
-function callGAS(func, params) {
+function callGAS(func, params, _retry) {
   const cacheKey = func + (params ? JSON.stringify(params) : '');
   if (NO_CACHE.indexOf(func) === -1 && gasCache[cacheKey]) return Promise.resolve(gasCache[cacheKey]);
   return new Promise(function(resolve, reject) {
@@ -269,8 +269,12 @@ function callGAS(func, params) {
     var timer = setTimeout(function() {
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
-      reject(new Error('タイムアウト'));
-    }, 30000);
+      if (!_retry) {
+        callGAS(func, params, true).then(resolve).catch(reject);
+      } else {
+        reject(new Error('タイムアウト'));
+      }
+    }, 60000);
     window[callbackName] = function(data) {
       clearTimeout(timer);
       delete window[callbackName];
