@@ -813,10 +813,10 @@ function doToggleEnabled(staffId) {
   s.enabled = newEnabled;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newEnabled ? '有効化しました' : '無効化しました', newEnabled ? 'success' : 'error');
-  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: s.active, enabled: newEnabled })
-  .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('setStaffEnabled', { staffId: staffId, enabled: newEnabled })
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
-
+  
 function doDeleteStaff(staffId, staffName) {
   if (!confirm('「' + staffName + '」を削除しますか？\n※この操作は取り消せません。')) return;
   if (state.staffList) state.staffList = state.staffList.filter(function(x) { return x.staffId !== staffId; });
