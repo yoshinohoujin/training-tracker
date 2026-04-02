@@ -383,7 +383,13 @@ function renderMain() {
   const isNew = role === '新スタッフ';
   const canEdit = role === 'トレーナー' || role === '店長';
   let html = '';
-  if (isAdmin && state.view === 'admin') { document.getElementById('main').innerHTML = renderAdmin(); initDrag(); return; }
+  if (isAdmin && state.view === 'admin') { document.getElementById('main').innerHTML = renderAdmin(); initDrag(); returif (isAdmin && state.view === 'admin') {
+    document.getElementById('main').innerHTML =
+      '<button class="admin-btn" onclick="setView(\'detail\')" style="margin-bottom:16px;display:flex;align-items:center;gap:6px;">← 進捗管理に戻る</button>' +
+      renderAdmin();
+    initDrag();
+    return;
+  }n; }
   if (!isNew) {
     html += '<div class="trainee-bar"><span class="trainee-label">新スタッフ：</span>';
     state.trainees.forEach(function(t) { html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>'; });
