@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v9 -->
+<!-- v10 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -150,12 +150,12 @@
   .admin-hint { font-size: 0.7rem; color: var(--text3); margin-top: 4px; }
 
   /* STAFF TABLE */
-.staff-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-.staff-table th { padding: 8px 12px; background: var(--surface2); color: var(--text3); font-size: 0.7rem; font-weight: 700; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-.staff-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-.staff-table tr:last-child td { border-bottom: none; }
-.staff-table tr:hover td { background: var(--surface2); }
-.staff-table .btn-group { display: flex; gap: 4px; }
+  .staff-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .staff-table th { padding: 8px 12px; background: var(--surface2); color: var(--text3); font-size: 0.7rem; font-weight: 700; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .staff-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .staff-table tr:last-child td { border-bottom: none; }
+  .staff-table tr:hover td { background: var(--surface2); }
+  .staff-table .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
 
   /* DRAG & DROP */
   .drag-handle { cursor: grab; color: var(--text3); padding: 0 4px; font-size: 1rem; flex-shrink: 0; user-select: none; }
@@ -163,13 +163,16 @@
   .dragging { opacity: 0.4; }
   .drag-over-top { border-top: 2px solid var(--accent) !important; }
   .drag-over-bottom { border-bottom: 2px solid var(--accent) !important; }
-  .cat-drag-over { border: 2px solid var(--accent) !important; background: rgba(37,99,235,0.04); }
+
+  /* BACK BTN */
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
+  .back-btn:hover { background: var(--surface2); }
 
   /* PC LAYOUT */
   @media (min-width: 600px) {
     .sidebar { display: block; }
-    .item-row { display: grid; grid-template-columns: 1fr 240px 240px; align-items: center; padding: 10px 16px; gap: 12px; }
-    .item-row-header { display: grid; grid-template-columns: 1fr 240px 240px; padding: 8px 16px; gap: 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
+    .item-row { display: grid; grid-template-columns: 1fr 240px 240px auto; align-items: center; padding: 10px 16px; gap: 12px; }
+    .item-row-header { display: grid; grid-template-columns: 1fr 240px 240px auto; padding: 8px 16px; gap: 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; }
     .item-checks { display: contents; }
     .check-col { display: flex; align-items: center; gap: 10px; background: transparent; padding: 0; border-radius: 0; min-width: 0; overflow: visible; }
     .taught-check { margin-bottom: 0; }
@@ -237,12 +240,14 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzfCUjmHmmCXSEvsPp6XvXT
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
   categories: [], trainees: [], data: {}, view: 'detail',
-  openCategories: new Set(), adminView: 'items', staffList: null
+  openCategories: new Set(), adminView: 'items', staffList: null,
+  adminOpenCats: null
 };
 
 const NO_CACHE = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
   'getStaffList','getCategories','addItem','updateItem','deleteItem','reorderItem',
-  'addCategory','addStaff','updateStaff','deleteStaff','reorderCategory'];
+  'addCategory','addStaff','updateStaff','deleteStaff','reorderCategory',
+  'saveItemOrder','saveCategoryOrder','setStaffEnabled'];
 const gasCache = {};
 
 function callGAS(func, params) {
@@ -296,7 +301,7 @@ document.getElementById('inputPassword').addEventListener('keydown', function(e)
 
 function doLogout() {
   localStorage.removeItem('loginUser');
-  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set(), adminView: 'items', staffList: null };
+  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set(), adminView: 'items', staffList: null, adminOpenCats: null };
   document.getElementById('appScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('inputStaffId').value = '';
@@ -383,18 +388,19 @@ function renderMain() {
   const isNew = role === '新スタッフ';
   const canEdit = role === 'トレーナー' || role === '店長';
   let html = '';
-  if (isAdmin && state.view === 'admin') { document.getElementById('main').innerHTML = renderAdmin(); initDrag(); returif (isAdmin && state.view === 'admin') {
-    document.getElementById('main').innerHTML =
-      '<button class="admin-btn" onclick="setView(\'detail\')" style="margin-bottom:16px;display:flex;align-items:center;gap:6px;">← 進捗管理に戻る</button>' +
-      renderAdmin();
+
+  if (isAdmin && state.view === 'admin') {
+    document.getElementById('main').innerHTML = renderAdmin();
     initDrag();
     return;
-  }n; }
+  }
+
   if (!isNew) {
     html += '<div class="trainee-bar"><span class="trainee-label">新スタッフ：</span>';
     state.trainees.forEach(function(t) { html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>'; });
     html += '</div>';
   }
+
   if (isManager) {
     html += '<div class="view-tabs">';
     html += '<button class="view-tab ' + (state.view === 'overview' ? 'active' : '') + '" onclick="setView(\'overview\')">📊 全体一覧</button>';
@@ -402,12 +408,14 @@ function renderMain() {
     if (isAdmin) html += '<button class="view-tab ' + (state.view === 'admin' ? 'active' : '') + '" onclick="setView(\'admin\')">⚙️ 管理</button>';
     html += '</div>';
   }
+
   if (isManager && state.view === 'overview') { html += renderOverview(); } else { html += renderDetail(canEdit); }
   document.getElementById('main').innerHTML = html;
 }
 
 function renderAdmin() {
-  let html = '<div class="admin-tabs">';
+  let html = '<button class="back-btn" onclick="setView(\'detail\')">← 進捗管理に戻る</button>';
+  html += '<div class="admin-tabs">';
   html += '<button class="admin-tab ' + (state.adminView === 'items' ? 'active' : '') + '" onclick="setAdminView(\'items\')">📚 教育項目</button>';
   html += '<button class="admin-tab ' + (state.adminView === 'staff' ? 'active' : '') + '" onclick="setAdminView(\'staff\')">👥 スタッフ</button>';
   html += '</div>';
@@ -417,22 +425,16 @@ function renderAdmin() {
 
 function renderAdminItems() {
   let html = '';
-  html += '<div class="admin-section">';
-  html += '<div class="admin-section-head"><span class="admin-section-title">カテゴリ追加</span></div>';
+  html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">カテゴリ追加</span></div>';
   html += '<div class="admin-form"><input class="admin-input" id="newCategoryName" placeholder="新しいカテゴリ名" style="flex:1"><button class="admin-btn primary" onclick="doAddCategory()">追加</button></div></div>';
-
   html += '<div id="cat-list">';
   state.categories.forEach(function(cat, catIdx) {
     const isOpen = state.adminOpenCats && state.adminOpenCats.has(cat.id);
     html += '<div class="admin-section" data-cat-id="' + cat.id + '" data-cat-idx="' + catIdx + '">';
-    // カテゴリヘッダー（ドラッグハンドル＋折りたたみ）
     html += '<div class="admin-section-head" style="cursor:pointer" onclick="toggleAdminCat(\'' + cat.id + '\')">';
-    html += '<span class="admin-section-title">';
-    html += '<span class="drag-handle cat-drag-handle" onclick="event.stopPropagation()" title="ドラッグしてカテゴリを並び替え">⠿</span> ';
+    html += '<span class="admin-section-title"><span class="drag-handle cat-drag-handle" onclick="event.stopPropagation()" title="ドラッグしてカテゴリを並び替え">⠿</span> ';
     html += '<span class="category-chevron ' + (isOpen ? 'open' : '') + '" style="font-size:0.7rem;margin-right:4px">▼</span>';
-    html += '📁 ' + cat.name + '（' + cat.items.length + '項目）</span>';
-    html += '</div>';
-    // 項目一覧（折りたたみ）
+    html += '📁 ' + cat.name + '（' + cat.items.length + '項目）</span></div>';
     if (isOpen) {
       html += '<div class="item-list" data-cat-id="' + cat.id + '">';
       cat.items.forEach(function(item) {
@@ -459,160 +461,79 @@ function toggleAdminCat(catId) {
   initDrag();
 }
 
-// ===== ドラッグ&ドロップ =====
 function initDrag() {
-  // 項目のドラッグ
   document.querySelectorAll('.admin-item-row[draggable]').forEach(function(row) {
-    row.addEventListener('dragstart', function(e) {
-      e.dataTransfer.setData('type', 'item');
-      e.dataTransfer.setData('itemId', row.dataset.itemId);
-      e.dataTransfer.setData('catId', row.dataset.catId);
-      row.classList.add('dragging');
-    });
-    row.addEventListener('dragend', function() {
-      row.classList.remove('dragging');
-      document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el) {
-        el.classList.remove('drag-over-top','drag-over-bottom');
-      });
-    });
-    row.addEventListener('dragover', function(e) {
-      const type = e.dataTransfer.types.includes('type') ? null : '';
-      e.preventDefault();
-      document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el) {
-        el.classList.remove('drag-over-top','drag-over-bottom');
-      });
-      const rect = row.getBoundingClientRect();
-      const mid = rect.top + rect.height / 2;
-      if (e.clientY < mid) { row.classList.add('drag-over-top'); } else { row.classList.add('drag-over-bottom'); }
-    });
-    row.addEventListener('dragleave', function() {
-      row.classList.remove('drag-over-top','drag-over-bottom');
-    });
+    row.addEventListener('dragstart', function(e) { e.dataTransfer.setData('type', 'item'); e.dataTransfer.setData('itemId', row.dataset.itemId); e.dataTransfer.setData('catId', row.dataset.catId); row.classList.add('dragging'); });
+    row.addEventListener('dragend', function() { row.classList.remove('dragging'); document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el) { el.classList.remove('drag-over-top','drag-over-bottom'); }); });
+    row.addEventListener('dragover', function(e) { e.preventDefault(); document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el) { el.classList.remove('drag-over-top','drag-over-bottom'); }); const rect = row.getBoundingClientRect(); if (e.clientY < rect.top + rect.height / 2) { row.classList.add('drag-over-top'); } else { row.classList.add('drag-over-bottom'); } });
+    row.addEventListener('dragleave', function() { row.classList.remove('drag-over-top','drag-over-bottom'); });
     row.addEventListener('drop', function(e) {
-      e.preventDefault();
-      row.classList.remove('drag-over-top','drag-over-bottom');
-      const draggedItemId = e.dataTransfer.getData('itemId');
-      const draggedCatId = e.dataTransfer.getData('catId');
-      const targetItemId = row.dataset.itemId;
-      const targetCatId = row.dataset.catId;
+      e.preventDefault(); row.classList.remove('drag-over-top','drag-over-bottom');
+      const draggedItemId = e.dataTransfer.getData('itemId'); const draggedCatId = e.dataTransfer.getData('catId');
+      const targetItemId = row.dataset.itemId; const targetCatId = row.dataset.catId;
       if (draggedItemId === targetItemId) return;
-
-      const rect = row.getBoundingClientRect();
-      const insertBefore = e.clientY < rect.top + rect.height / 2;
-
-      // state更新
+      const insertBefore = e.clientY < row.getBoundingClientRect().top + row.getBoundingClientRect().height / 2;
       const srcCat = state.categories.find(function(c) { return c.id === draggedCatId; });
       const tgtCat = state.categories.find(function(c) { return c.id === targetCatId; });
       if (!srcCat || !tgtCat) return;
-
       const draggedItem = srcCat.items.find(function(i) { return i.id === draggedItemId; });
       if (!draggedItem) return;
       srcCat.items = srcCat.items.filter(function(i) { return i.id !== draggedItemId; });
-
       const tgtIdx = tgtCat.items.findIndex(function(i) { return i.id === targetItemId; });
       tgtCat.items.splice(insertBefore ? tgtIdx : tgtIdx + 1, 0, draggedItem);
-
-      document.getElementById('main').innerHTML = renderAdmin();
-      initDrag();
-
-      // GASに保存（同カテゴリのみ対応）
-      if (draggedCatId === targetCatId) {
-        const newIdx = tgtCat.items.findIndex(function(i) { return i.id === draggedItemId; });
-        const oldIdx = newIdx; // 移動後なので裏で全順序を送る
-        saveItemOrder(targetCatId);
-      }
+      document.getElementById('main').innerHTML = renderAdmin(); initDrag();
+      if (draggedCatId === targetCatId) saveItemOrder(targetCatId);
     });
   });
 
-  // カテゴリのドラッグ（ヘッダーのハンドルのみ）
   document.querySelectorAll('.cat-drag-handle').forEach(function(handle) {
     const sec = handle.closest('.admin-section');
     if (!sec) return;
     handle.setAttribute('draggable', 'true');
-    handle.addEventListener('dragstart', function(e) {
-      e.dataTransfer.setData('type', 'category');
-      e.dataTransfer.setData('catId', sec.dataset.catId);
-      sec.classList.add('dragging');
-      e.stopPropagation();
-    });
-    handle.addEventListener('dragend', function() {
-      sec.classList.remove('dragging');
-      document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
-    });
+    handle.addEventListener('dragstart', function(e) { e.dataTransfer.setData('type', 'category'); e.dataTransfer.setData('catId', sec.dataset.catId); sec.classList.add('dragging'); e.stopPropagation(); });
+    handle.addEventListener('dragend', function() { sec.classList.remove('dragging'); document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); }); });
   });
 
-  // カテゴリのドロップゾーン
   document.querySelectorAll('#cat-list > .admin-section').forEach(function(sec) {
     sec.addEventListener('dragover', function(e) {
-      const type = e.dataTransfer.types[0];
-      if (type !== 'text/plain' && !e.dataTransfer.types.includes('text/plain')) {
-        e.preventDefault();
-        document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
-        const rect = sec.getBoundingClientRect();
-        const mid = rect.top + rect.height / 2;
-        const line = document.createElement('div');
-        line.className = 'cat-drop-line';
-        line.style.cssText = 'height:3px;background:var(--accent);margin:0 8px;border-radius:2px;';
-        if (e.clientY < mid) {
-          sec.parentNode.insertBefore(line, sec);
-        } else {
-          sec.parentNode.insertBefore(line, sec.nextSibling);
-        }
-      }
-    });
-    sec.addEventListener('dragleave', function(e) {
-      if (!sec.contains(e.relatedTarget)) {
-        // ライン削除はdragoverで管理
-      }
+      e.preventDefault();
+      document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
+      const rect = sec.getBoundingClientRect();
+      const line = document.createElement('div');
+      line.className = 'cat-drop-line';
+      line.style.cssText = 'height:3px;background:var(--accent);margin:0 8px;border-radius:2px;';
+      if (e.clientY < rect.top + rect.height / 2) { sec.parentNode.insertBefore(line, sec); } else { sec.parentNode.insertBefore(line, sec.nextSibling); }
     });
     sec.addEventListener('drop', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
-      const draggedCatId = e.dataTransfer.getData('catId');
-      const targetCatId = sec.dataset.catId;
+      const draggedCatId = e.dataTransfer.getData('catId'); const targetCatId = sec.dataset.catId;
       if (!draggedCatId || draggedCatId === targetCatId) return;
-
-      const rect = sec.getBoundingClientRect();
-      const insertBefore = e.clientY < rect.top + rect.height / 2;
-
+      const insertBefore = e.clientY < sec.getBoundingClientRect().top + sec.getBoundingClientRect().height / 2;
       const draggedIdx = state.categories.findIndex(function(c) { return c.id === draggedCatId; });
-      const targetIdx = state.categories.findIndex(function(c) { return c.id === targetCatId; });
-      if (draggedIdx === -1 || targetIdx === -1) return;
-
+      if (draggedIdx === -1) return;
       const dragged = state.categories.splice(draggedIdx, 1)[0];
       const newTargetIdx = state.categories.findIndex(function(c) { return c.id === targetCatId; });
       state.categories.splice(insertBefore ? newTargetIdx : newTargetIdx + 1, 0, dragged);
-
-      document.getElementById('main').innerHTML = renderAdmin();
-      initDrag();
-      saveCategoryOrder();
+      document.getElementById('main').innerHTML = renderAdmin(); initDrag(); saveCategoryOrder();
     });
   });
-  // cat-list全体でdragleaveしたらラインを消す
+
   const catList = document.getElementById('cat-list');
   if (catList) {
-    catList.addEventListener('dragleave', function(e) {
-      if (!catList.contains(e.relatedTarget)) {
-        document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
-      }
-    });
+    catList.addEventListener('dragleave', function(e) { if (!catList.contains(e.relatedTarget)) { document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); }); } });
   }
 }
 
-// カテゴリ内の項目順をGASに保存
 function saveItemOrder(catId) {
   const cat = state.categories.find(function(c) { return c.id === catId; });
   if (!cat) return;
-  const orderedIds = cat.items.map(function(i) { return i.id; });
-  callGAS('saveItemOrder', { catId, orderedIds })
+  callGAS('saveItemOrder', { catId, orderedIds: cat.items.map(function(i) { return i.id; }) })
     .catch(function(e) { showToast('順番の保存失敗: ' + e.message, 'error'); });
 }
 
-// カテゴリ順をGASに保存
 function saveCategoryOrder() {
-  const orderedIds = state.categories.map(function(c) { return c.id; });
-  callGAS('saveCategoryOrder', { orderedIds })
+  callGAS('saveCategoryOrder', { orderedIds: state.categories.map(function(c) { return c.id; }) })
     .catch(function(e) { showToast('カテゴリ順の保存失敗: ' + e.message, 'error'); });
 }
 
@@ -622,13 +543,9 @@ function renderAdminStaff() {
     return '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
   }
   const roleColors = { '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)', 'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)', '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)', '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)' };
-  // 社員番号順ソート
-  const sortedStaff = state.staffList.slice().sort(function(a, b) {
-    return String(a.staffId).localeCompare(String(b.staffId), undefined, { numeric: true });
-  });
+  const sortedStaff = state.staffList.slice().sort(function(a, b) { return String(a.staffId).localeCompare(String(b.staffId), undefined, { numeric: true }); });
   let html = '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ一覧</span></div>';
-  html += '<div style="overflow-x:auto"><table class="staff-table">';
-  html += '<thead><tr><th>種別</th><th>社員番号</th><th>氏名</th><th>担当新人ID</th><th>操作</th></tr></thead><tbody>';
+  html += '<div style="overflow-x:auto"><table class="staff-table"><thead><tr><th>種別</th><th>社員番号</th><th>氏名</th><th>担当新人ID</th><th>操作</th></tr></thead><tbody>';
   sortedStaff.forEach(function(s) {
     const isActive = s.active === true;
     const isEnabled = s.enabled !== false;
@@ -639,37 +556,23 @@ function renderAdminStaff() {
     html += '<td style="font-size:0.8rem;color:var(--text3)">' + (s.traineeId || '—') + '</td>';
     html += '<td><div class="btn-group">';
     html += '<button class="admin-btn" onclick="startEditStaff(\'' + s.staffId + '\')">編集</button>';
-    if (s.role === '新スタッフ') {
-      html += '<button class="admin-btn ' + (isActive ? 'success' : '') + '" onclick="doToggleActive(\'' + s.staffId + '\')">' + (isActive ? '表示中' : '非表示') + '</button>';
-    }
+    if (s.role === '新スタッフ') { html += '<button class="admin-btn ' + (isActive ? 'success' : '') + '" onclick="doToggleActive(\'' + s.staffId + '\')">' + (isActive ? '表示中' : '非表示') + '</button>'; }
     html += '<button class="admin-btn ' + (isEnabled ? 'danger' : 'success') + '" onclick="doToggleEnabled(\'' + s.staffId + '\')">' + (isEnabled ? '無効化' : '有効化') + '</button>';
     html += '<button class="admin-btn danger" onclick="doDeleteStaff(\'' + s.staffId + '\',\'' + s.name.replace(/'/g, "\\'") + '\')">削除</button>';
-    html += '</div></td>';
-    html += '</tr>';
+    html += '</div></td></tr>';
   });
-  
   html += '</tbody></table></div></div>';
   html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:10px;">';
-  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-  html += '<input class="admin-input" id="newStaffId" placeholder="社員番号" style="width:120px">';
-  html += '<input class="admin-input" id="newStaffPass" placeholder="パスワード" style="width:140px">';
-  html += '<input class="admin-input" id="newStaffName" placeholder="氏名" style="flex:1;min-width:120px">';
-  html += '</div>';
-  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">';
-  html += '<select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()">';
-  html += '<option value="新スタッフ">新スタッフ</option><option value="トレーナー">トレーナー</option><option value="店長">店長</option><option value="管理職">管理職</option>';
-  html += '</select>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;"><input class="admin-input" id="newStaffId" placeholder="社員番号" style="width:120px"><input class="admin-input" id="newStaffPass" placeholder="パスワード" style="width:140px"><input class="admin-input" id="newStaffName" placeholder="氏名" style="flex:1;min-width:120px"></div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;"><select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()"><option value="新スタッフ">新スタッフ</option><option value="トレーナー">トレーナー</option><option value="店長">店長</option><option value="管理職">管理職</option></select>';
   html += '<div style="flex:1;min-width:160px;"><input class="admin-input" id="newStaffTraineeId" placeholder="新人ID（例：trainee001）" style="width:100%"><div class="admin-hint" id="traineeIdHint">新スタッフ：本人のID / トレーナー・店長：担当する新スタッフのID</div></div>';
-  html += '<input class="admin-input" id="newStaffYear" placeholder="入社年度" style="width:100px" type="number">';
-  html += '</div>';
-  html += '<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button>';
-  html += '</div></div>';
+  html += '<input class="admin-input" id="newStaffYear" placeholder="入社年度" style="width:100px" type="number"></div>';
+  html += '<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button></div></div>';
   return html;
 }
 
 // ===== 管理職操作 =====
-function reloadStaff() { state.staffList = null; document.getElementById('main').innerHTML = renderAdmin(); }
 function setAdminView(v) { state.adminView = v; state.staffList = null; document.getElementById('main').innerHTML = renderAdmin(); if (v === 'items') initDrag(); }
 function updateTraineeIdHint() {
   const role = document.getElementById('newStaffRole').value;
@@ -685,8 +588,7 @@ function doAddCategory() {
   const name = document.getElementById('newCategoryName').value.trim();
   if (!name) return;
   state.categories.push({ id: name, name: name, items: [] });
-  document.getElementById('main').innerHTML = renderAdmin();
-  initDrag();
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
   showToast('カテゴリを追加しました', 'success');
   callGAS('addCategory', { categoryName: name }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
@@ -698,16 +600,11 @@ function doAddItem(categoryId) {
   const tempId = 'temp_' + Date.now();
   const cat = state.categories.find(function(c) { return c.id === categoryId; });
   if (cat) cat.items.push({ id: tempId, name: name });
-  document.getElementById('main').innerHTML = renderAdmin();
-  initDrag();
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
   showToast('項目を追加しました', 'success');
-  callGAS('addItem', { category: categoryId, itemName: name })
-    .then(function(result) {
-      if (result && result.itemId) {
-        const c = state.categories.find(function(c) { return c.id === categoryId; });
-        if (c) { const item = c.items.find(function(i) { return i.id === tempId; }); if (item) item.id = result.itemId; }
-      }
-    }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('addItem', { category: categoryId, itemName: name }).then(function(result) {
+    if (result && result.itemId) { const c = state.categories.find(function(c) { return c.id === categoryId; }); if (c) { const item = c.items.find(function(i) { return i.id === tempId; }); if (item) item.id = result.itemId; } }
+  }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function startEditItem(itemId, currentName) {
@@ -724,8 +621,7 @@ function doUpdateItem(itemId) {
   const name = input ? input.value.trim() : '';
   if (!name) return;
   state.categories.forEach(function(cat) { cat.items.forEach(function(item) { if (item.id === itemId) item.name = name; }); });
-  document.getElementById('main').innerHTML = renderAdmin();
-  initDrag();
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
   showToast('更新しました', 'success');
   callGAS('updateItem', { itemId, itemName: name }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
@@ -733,8 +629,7 @@ function doUpdateItem(itemId) {
 function doDeleteItem(itemId, itemName) {
   if (!confirm('「' + itemName + '」を削除しますか？')) return;
   state.categories.forEach(function(cat) { cat.items = cat.items.filter(function(item) { return item.id !== itemId; }); });
-  document.getElementById('main').innerHTML = renderAdmin();
-  initDrag();
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
   showToast('削除しました', 'success');
   callGAS('deleteItem', { itemId }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
@@ -747,7 +642,7 @@ function doAddStaff() {
   const traineeId = document.getElementById('newStaffTraineeId').value.trim();
   const year = document.getElementById('newStaffYear').value.trim();
   if (!staffId || !password || !name) { showToast('社員番号・パスワード・氏名は必須です', 'error'); return; }
-  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ' });
+  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ', enabled: true });
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('スタッフを追加しました', 'success');
   callGAS('addStaff', { staffId, password, name, role, traineeId, year }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
@@ -756,7 +651,6 @@ function doAddStaff() {
 function startEditStaff(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  // モーダルを表示
   const roleHint = s.role === '新スタッフ' ? '本人のID' : (s.role === 'トレーナー' || s.role === '店長') ? '担当新人ID' : '担当ID（任意）';
   const modal = document.createElement('div');
   modal.id = 'editStaffModal';
@@ -765,21 +659,12 @@ function startEditStaff(staffId) {
     '<div style="font-weight:700;font-size:1rem;margin-bottom:16px">スタッフ編集（' + s.staffId + '）</div>' +
     '<div style="display:flex;flex-direction:column;gap:10px">' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">氏名</label><input class="admin-input" id="es-name" value="' + s.name + '" style="flex:1"></div>' +
-    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">役職</label><select class="admin-select" id="es-role" style="flex:1">' +
-    '<option value="新スタッフ"' + (s.role==='新スタッフ'?' selected':'') + '>新スタッフ</option>' +
-    '<option value="トレーナー"' + (s.role==='トレーナー'?' selected':'') + '>トレーナー</option>' +
-    '<option value="店長"' + (s.role==='店長'?' selected':'') + '>店長</option>' +
-    '<option value="管理職"' + (s.role==='管理職'?' selected':'') + '>管理職</option>' +
-    '</select></div>' +
+    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">役職</label><select class="admin-select" id="es-role" style="flex:1"><option value="新スタッフ"' + (s.role==='新スタッフ'?' selected':'') + '>新スタッフ</option><option value="トレーナー"' + (s.role==='トレーナー'?' selected':'') + '>トレーナー</option><option value="店長"' + (s.role==='店長'?' selected':'') + '>店長</option><option value="管理職"' + (s.role==='管理職'?' selected':'') + '>管理職</option></select></div>' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">' + roleHint + '</label><input class="admin-input" id="es-trainee" value="' + (s.traineeId||'') + '" style="flex:1"></div>' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">入社年度</label><input class="admin-input" id="es-year" value="' + (s.year||'') + '" type="number" style="flex:1"></div>' +
     '</div>' +
-    '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">' +
-    '<button class="admin-btn" onclick="document.getElementById(\'editStaffModal\').remove()">キャンセル</button>' +
-    '<button class="admin-btn primary" onclick="doUpdateStaff(\'' + s.staffId + '\')">保存</button>' +
-    '</div></div>';
+    '<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end"><button class="admin-btn" onclick="document.getElementById(\'editStaffModal\').remove()">キャンセル</button><button class="admin-btn primary" onclick="doUpdateStaff(\'' + s.staffId + '\')">保存</button></div></div>';
   document.body.appendChild(modal);
-  // モーダル外クリックで閉じる
   modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
 }
 
@@ -791,14 +676,12 @@ function doUpdateStaff(staffId) {
   const year = document.getElementById('es-year').value.trim();
   const active = s ? s.active : false;
   if (!name) { showToast('氏名は必須です', 'error'); return; }
-  // モーダルを閉じて即座に画面更新
   const modal = document.getElementById('editStaffModal');
   if (modal) modal.remove();
   if (s) { s.name = name; s.role = role; s.traineeId = traineeId; s.year = year; }
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('更新しました', 'success');
-  // 裏で保存
-  callGAS('updateStaff', { staffId, name, role, traineeId, year, active, enabled: s ? s.enabled : true })
+  callGAS('updateStaff', { staffId, name, role, traineeId, year, active, enabled: s ? s.enabled !== false : true })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -809,7 +692,8 @@ function doToggleActive(staffId) {
   s.active = newActive;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
-  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive, enabled: s.enabled !== false }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive, enabled: s.enabled !== false })
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doToggleEnabled(staffId) {
@@ -822,7 +706,7 @@ function doToggleEnabled(staffId) {
   callGAS('setStaffEnabled', { staffId: staffId, enabled: newEnabled })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
-  
+
 function doDeleteStaff(staffId, staffName) {
   if (!confirm('「' + staffName + '」を削除しますか？\n※この操作は取り消せません。')) return;
   if (state.staffList) state.staffList = state.staffList.filter(function(x) { return x.staffId !== staffId; });
@@ -856,6 +740,7 @@ function renderDetail(canEdit) {
   const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
   const traineeName = (state.trainees.find(function(t) { return t.traineeId === traineeId; }) || {}).name || '';
   const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
+
   let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の進捗</div>';
   html += '<div class="section-stats"><div class="stat-item"><div class="stat-num">' + pct + '%</div><div class="stat-label">指導済み</div></div>';
   html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
@@ -866,6 +751,7 @@ function renderDetail(canEdit) {
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
   html += '</div>';
+
   state.categories.forEach(function(cat) {
     const isOpen = state.openCategories.has(cat.id);
     const p = getCategoryProgress(traineeId, cat.id);
@@ -875,16 +761,19 @@ function renderDetail(canEdit) {
     html += '<span class="category-name">' + cat.name + '</span><span class="category-count">' + p.taught + '/' + p.total + '</span></div>';
     html += '<div style="display:flex;align-items:center;gap:8px"><div class="category-mini-bar"><div class="category-mini-fill" style="width:' + cpct + '%"></div></div>';
     html += '<span style="font-size:0.7rem;color:var(--text3)">' + cpct + '%</span></div></div>';
+
     if (isOpen) {
-      html += '<div class="item-row-header"><div>業務内容</div><div>指導日 / 習得度①</div><div>再指導日 / 習得度②</div></div>';
+      html += '<div class="item-row-header"><div>業務内容</div><div>指導日 / 習得度①</div><div>再指導日 / 習得度②</div><div>状態</div></div>';
       cat.items.forEach(function(item) {
         const rec = getRecord(traineeId, item.id);
         const status = rec.retaughtDate ? 'done' : rec.taughtDate ? 'taught' : 'none';
         const statusLabel = status === 'done' ? '再指導済み' : status === 'taught' ? '指導済み' : '';
-        const statusStyle = status === 'done' ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);' : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
-        html += '<div class="item-row"><div class="item-name-wrap"><span class="item-name">' + item.name + '</span>';
-        if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
-        html += '</div><div class="item-checks">';
+        const statusStyle = status === 'done'
+          ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
+          : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
+
+        html += '<div class="item-row"><div class="item-name-wrap"><span class="item-name">' + item.name + '</span></div>';
+        html += '<div class="item-checks">';
         html += '<div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check ' + (rec.taughtDate ? 'checked' : '') + '" onclick="toggleTaught(\'' + traineeId + '\',\'' + item.id + '\')">';
@@ -897,7 +786,8 @@ function renderDetail(canEdit) {
           html += '<div style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</div>';
           html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</div>';
         }
-        html += '</div><div class="check-col">';
+        html += '</div>';
+        html += '<div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
           html += '<div class="check-box" style="' + (rec.retaughtDate ? 'background:var(--accent2);border-color:var(--accent2)' : '') + '">' + (rec.retaughtDate ? '✓' : '') + '</div>';
@@ -909,7 +799,12 @@ function renderDetail(canEdit) {
           html += '<div style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</div>';
           html += '<div style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</div>';
         }
-        html += '</div></div></div>';
+        html += '</div>';
+        // 状態バッジを最後の列に
+        html += '<div style="display:flex;align-items:center;justify-content:center;">';
+        if (statusLabel) { html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>'; }
+        html += '</div>';
+        html += '</div></div>';
       });
     }
     html += '</div>';
@@ -924,11 +819,7 @@ function selectTrainee(traineeId) {
 
 function selectCategory(id) {
   state.currentCategory = id; state.openCategories.add(id); render();
-  setTimeout(function() {
-    const blocks = document.querySelectorAll('.category-block');
-    const idx = state.categories.findIndex(function(c) { return c.id === id; });
-    if (blocks[idx]) blocks[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 50);
+  setTimeout(function() { const blocks = document.querySelectorAll('.category-block'); const idx = state.categories.findIndex(function(c) { return c.id === id; }); if (blocks[idx]) blocks[idx].scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
 }
 
 function toggleCategory(id) { state.openCategories.has(id) ? state.openCategories.delete(id) : state.openCategories.add(id); render(); }
