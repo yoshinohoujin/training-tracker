@@ -318,6 +318,7 @@ function doLogout() {
 }
 
 function getAssignedTrainee(trainees) {
+  if (!state.user) return trainees.length > 0 ? trainees[0].traineeId : null;
   const assignedId = state.user.traineeId ? String(state.user.traineeId).split(',')[0].trim() : '';
   if (assignedId) {
     const found = trainees.find(function(t) { return t.traineeId === assignedId; });
