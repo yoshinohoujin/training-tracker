@@ -634,9 +634,9 @@ function renderAdminStaff() {
     html += '<td><div class="btn-group">';
     html += '<button class="admin-btn" onclick="startEditStaff(\'' + s.staffId + '\')">編集</button>';
     if (s.role === '新スタッフ') {
-      html += '<button class="admin-btn ' + (isActive ? 'success' : '') + '" onclick="doToggleActive(\'' + s.staffId + '\',' + isActive + ')">' + (isActive ? '表示中' : '非表示') + '</button>';
+      html += '<button class="admin-btn ' + (isActive ? 'success' : '') + '" onclick="doToggleActive(\'' + s.staffId + '\')">' + (isActive ? '表示中' : '非表示') + '</button>';
     }
-    html += '<button class="admin-btn ' + (isEnabled ? 'danger' : 'success') + '" onclick="doToggleEnabled(\'' + s.staffId + '\',' + isEnabled + ')">' + (isEnabled ? '無効化' : '有効化') + '</button>';
+    html += '<button class="admin-btn ' + (isEnabled ? 'danger' : 'success') + '" onclick="doToggleEnabled(\'' + s.staffId + '\')">' + (isEnabled ? '無効化' : '有効化') + '</button>';
     html += '<button class="admin-btn danger" onclick="doDeleteStaff(\'' + s.staffId + '\',\'' + s.name.replace(/'/g, "\\'") + '\')">削除</button>';
     html += '</div></td>';
     html += '</tr>';
@@ -796,25 +796,25 @@ function doUpdateStaff(staffId) {
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
-function doToggleActive(staffId, currentActive) {
+function doToggleActive(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  const newActive = !(currentActive === true || currentActive === 'true');
+  const newActive = !(s.active === true);
   s.active = newActive;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
   callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive, enabled: s.enabled !== false }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
-  function doToggleEnabled(staffId, currentEnabled) {
+function doToggleEnabled(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   if (!s) return;
-  const newEnabled = !(currentEnabled === true || currentEnabled === 'true');
+  const newEnabled = !(s.enabled !== false);
   s.enabled = newEnabled;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newEnabled ? '有効化しました' : '無効化しました', newEnabled ? 'success' : 'error');
   callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: s.active, enabled: newEnabled })
-    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function doDeleteStaff(staffId, staffName) {
