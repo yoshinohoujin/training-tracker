@@ -846,7 +846,24 @@ function selectCategory(id) {
 }
 
 function toggleCategory(id) { state.openCategories.has(id) ? state.openCategories.delete(id) : state.openCategories.add(id); render(); }
-function setView(v) { state.view = v; renderSidebar(); renderMain(); if (v === 'admin') setTimeout(initDrag, 50); }
+function setView(v) {
+  // 管理画面から進捗管理に戻るときはデータをリフレッシュ
+  if (state.view === 'admin' && v !== 'admin') {
+    state.view = v;
+    state.categories = [];
+    state.trainees = [];
+    state.data = {};
+    state.openCategories = new Set();
+    document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
+    renderSidebar();
+    initApp();
+    return;
+  }
+  state.view = v;
+  renderSidebar();
+  renderMain();
+  if (v === 'admin') setTimeout(initDrag, 50);
+}
 
 function toggleTaught(traineeId, itemId) { const rec = getRecord(traineeId, itemId); const value = rec.taughtDate ? '' : todayStr(); rec.taughtDate = value; render(); saveField(traineeId, itemId, 'taughtDate', value); }
 function toggleRetaught(traineeId, itemId) { const rec = getRecord(traineeId, itemId); const value = rec.retaughtDate ? '' : todayStr(); rec.retaughtDate = value; render(); saveField(traineeId, itemId, 'retaughtDate', value); }
