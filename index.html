@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v11 -->
+<!-- v12 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -105,7 +105,8 @@
 
   .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .overview-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 4px rgba(30,35,64,0.06); }
-  .overview-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .overview-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+  .overview-card-sub { font-size: 0.72rem; color: var(--text3); margin-bottom: 10px; }
   .overview-pct-big { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
   .overview-sections { display: flex; flex-direction: column; gap: 6px; }
   .overview-row { display: flex; align-items: center; gap: 8px; }
@@ -113,6 +114,10 @@
   .overview-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
   .overview-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; }
   .overview-pct { font-size: 0.7rem; color: var(--text3); width: 28px; text-align: right; }
+
+  .career-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
+  .career-sb { background: rgba(37,99,235,0.1); color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
+  .career-au { background: rgba(220,38,38,0.1); color: var(--red); border: 1px solid rgba(220,38,38,0.2); }
 
   .view-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
   .view-tab { padding: 8px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
@@ -150,7 +155,6 @@
   .admin-form { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; background: var(--surface2); border-top: 1px solid var(--border); align-items: center; }
   .admin-hint { font-size: 0.7rem; color: var(--text3); margin-top: 4px; }
 
-  /* STAFF TABLE */
   .staff-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   .staff-table th { padding: 8px 12px; background: var(--surface2); color: var(--text3); font-size: 0.7rem; font-weight: 700; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
   .staff-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
@@ -158,18 +162,15 @@
   .staff-table tr:hover td { background: var(--surface2); }
   .staff-table .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
 
-  /* DRAG & DROP */
   .drag-handle { cursor: grab; color: var(--text3); padding: 0 4px; font-size: 1rem; flex-shrink: 0; user-select: none; }
   .drag-handle:active { cursor: grabbing; }
   .dragging { opacity: 0.4; }
   .drag-over-top { border-top: 2px solid var(--accent) !important; }
   .drag-over-bottom { border-bottom: 2px solid var(--accent) !important; }
 
-  /* BACK BTN */
   .back-btn { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .back-btn:hover { background: var(--surface2); }
 
-  /* PC LAYOUT */
   @media (min-width: 600px) {
     .sidebar { display: block; }
     .item-row { display: grid; grid-template-columns: 1fr 1fr 1fr 100px; align-items: center; padding: 10px 16px; gap: 12px; }
@@ -242,7 +243,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyTO1GG1s_jUg7Y9arZaEHHeHSFWJn6t2X8K4WhfNrDu9aJQec9RDxo3LE2SUM8115GuA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyAvGR-L25jEL5C6Qi0Ed-S8nx7pAynAoz-23anaks3DEM3lK2SUMOCL2Nr-MizdJ8wvw/exec';
 
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
@@ -324,10 +325,19 @@ function getAssignedTrainee(trainees) {
   if (!state.user) return trainees.length > 0 ? trainees[0].traineeId : null;
   const assignedId = state.user.traineeId ? String(state.user.traineeId).split(',')[0].trim() : '';
   if (assignedId) {
-    const found = trainees.find(function(t) { return t.traineeId === assignedId; });
+    const found = trainees.find(function(t) { return String(t.traineeId) === String(assignedId); });
     if (found) return found.traineeId;
   }
   return trainees.length > 0 ? trainees[0].traineeId : null;
+}
+
+// 担当トレーナー名を取得（staffListから逆引き）
+function getTrainerNames(traineeId) {
+  if (!state.staffList) return '';
+  const trainers = state.staffList.filter(function(s) {
+    return s.role === 'トレーナー' && String(s.traineeId) === String(traineeId);
+  });
+  return trainers.map(function(s) { return s.name; }).join('、');
 }
 
 function initApp() {
@@ -337,17 +347,51 @@ function initApp() {
   document.getElementById('roleBadge').textContent = roleLabels[state.user.role] || state.user.role;
   document.getElementById('roleBadge').className = 'role-badge ' + (roleClasses[state.user.role] || 'role-trainer');
   const role = state.user.role;
+  const career = state.user.career || '';
+
   if (role === '新スタッフ') {
-    state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name }];
+    state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name, career: career }];
     state.currentTrainee = state.user.traineeId;
-    Promise.all([callGAS('getCategories'), callGAS('getProgress', { traineeId: state.user.traineeId })])
-      .then(function(results) { state.categories = results[0]; if (state.categories.length > 0) state.currentCategory = state.categories[0].id; state.data[state.user.traineeId] = results[1]; render(); }).catch(showError);
+    Promise.all([callGAS('getCategories', { career: career }), callGAS('getProgress', { traineeId: state.user.traineeId })])
+      .then(function(results) {
+        state.categories = results[0];
+        if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+        state.data[state.user.traineeId] = results[1];
+        render();
+      }).catch(showError);
   } else if (role === '管理職' || role === '店長') {
-    Promise.all([callGAS('getCategories'), callGAS('getTrainees'), callGAS('getAllProgress')])
-      .then(function(results) { state.categories = results[0]; if (state.categories.length > 0) state.currentCategory = state.categories[0].id; state.trainees = results[1]; state.data = results[2]; if (state.trainees.length > 0) state.currentTrainee = getAssignedTrainee(state.trainees); render(); }).catch(showError);
+    Promise.all([
+      callGAS('getCategories', { career: career }),
+      callGAS('getTrainees', { career: career }),
+      callGAS('getAllProgress', { career: career }),
+      callGAS('getStaffList')
+    ]).then(function(results) {
+      state.categories = results[0];
+      if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+      state.trainees = results[1];
+      state.data = results[2];
+      state.staffList = results[3];
+      if (state.trainees.length > 0) state.currentTrainee = getAssignedTrainee(state.trainees);
+      render();
+    }).catch(showError);
   } else {
-    Promise.all([callGAS('getCategories'), callGAS('getTrainees')])
-      .then(function(results) { state.categories = results[0]; if (state.categories.length > 0) state.currentCategory = state.categories[0].id; state.trainees = results[1]; if (state.trainees.length > 0) { state.currentTrainee = getAssignedTrainee(state.trainees); return callGAS('getProgress', { traineeId: state.currentTrainee }).then(function(progress) { state.data[state.currentTrainee] = progress; render(); }); } else { render(); } }).catch(showError);
+    Promise.all([
+      callGAS('getCategories', { career: career }),
+      callGAS('getTrainees', { career: career }),
+      callGAS('getStaffList')
+    ]).then(function(results) {
+      state.categories = results[0];
+      if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+      state.trainees = results[1];
+      state.staffList = results[2];
+      if (state.trainees.length > 0) {
+        state.currentTrainee = getAssignedTrainee(state.trainees);
+        return callGAS('getProgress', { traineeId: state.currentTrainee }).then(function(progress) {
+          state.data[state.currentTrainee] = progress;
+          render();
+        });
+      } else { render(); }
+    }).catch(showError);
   }
 }
 
@@ -409,7 +453,9 @@ function renderMain() {
 
   if (!isNew) {
     html += '<div class="trainee-bar"><span class="trainee-label">新スタッフ：</span>';
-    state.trainees.forEach(function(t) { html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>'; });
+    state.trainees.forEach(function(t) {
+      html += '<button class="trainee-btn ' + (state.currentTrainee === t.traineeId ? 'active' : '') + '" onclick="selectTrainee(\'' + t.traineeId + '\')">' + t.name + '</button>';
+    });
     html += '</div>';
   }
 
@@ -444,14 +490,14 @@ function renderAdminItems() {
     const isOpen = state.adminOpenCats && state.adminOpenCats.has(cat.id);
     html += '<div class="admin-section" data-cat-id="' + cat.id + '" data-cat-idx="' + catIdx + '">';
     html += '<div class="admin-section-head" style="cursor:pointer" onclick="toggleAdminCat(\'' + cat.id + '\')">';
-    html += '<span class="admin-section-title"><span class="drag-handle cat-drag-handle" onclick="event.stopPropagation()" title="ドラッグしてカテゴリを並び替え">⠿</span> ';
+    html += '<span class="admin-section-title"><span class="drag-handle cat-drag-handle" onclick="event.stopPropagation()">⠿</span> ';
     html += '<span style="font-size:0.7rem;margin-right:4px;display:inline-block;transition:transform 0.2s;transform:' + (isOpen ? 'rotate(0deg)' : 'rotate(-90deg)') + '">▼</span>';
     html += '📁 ' + cat.name + '（' + cat.items.length + '項目）</span></div>';
     if (isOpen) {
       html += '<div class="item-list" data-cat-id="' + cat.id + '">';
       cat.items.forEach(function(item) {
         html += '<div class="admin-item-row" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" draggable="true">';
-        html += '<span class="drag-handle" title="ドラッグして並び替え">⠿</span>';
+        html += '<span class="drag-handle">⠿</span>';
         html += '<span class="admin-item-name" id="item-name-' + item.id + '">';
         html += item.name;
         if (item.note) html += '<span style="display:block;font-size:0.72rem;color:var(--text3)">' + item.note + '</span>';
@@ -563,11 +609,13 @@ function renderAdminStaff() {
   const roleColors = { '新スタッフ': 'background:rgba(22,163,74,0.1);color:var(--green)', 'トレーナー': 'background:rgba(37,99,235,0.1);color:var(--accent)', '店長': 'background:rgba(124,58,237,0.1);color:var(--accent2)', '管理職': 'background:rgba(124,58,237,0.1);color:var(--accent2)' };
   const sortedStaff = state.staffList.slice().sort(function(a, b) { return String(a.staffId).localeCompare(String(b.staffId), undefined, { numeric: true }); });
   let html = '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ一覧</span></div>';
-  html += '<div style="overflow-x:auto"><table class="staff-table"><thead><tr><th>種別</th><th>社員番号</th><th>氏名</th><th>担当新人ID</th><th>操作</th></tr></thead><tbody>';
+  html += '<div style="overflow-x:auto"><table class="staff-table"><thead><tr><th>キャリア</th><th>種別</th><th>社員番号</th><th>氏名</th><th>担当新人ID</th><th>操作</th></tr></thead><tbody>';
   sortedStaff.forEach(function(s) {
     const isActive = s.active === true;
     const isEnabled = s.enabled !== false;
+    const careerLabel = s.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : s.career === 'AU' ? '<span class="career-badge career-au">AU</span>' : '<span style="font-size:0.7rem;color:var(--text3)">—</span>';
     html += '<tr style="' + (!isEnabled ? 'opacity:0.5' : '') + '">';
+    html += '<td>' + careerLabel + '</td>';
     html += '<td><span style="' + (roleColors[s.role]||'') + ';border-radius:10px;padding:2px 8px;font-size:0.7rem;font-weight:500;white-space:nowrap;">' + s.role + '</span></td>';
     html += '<td style="color:var(--text2);font-size:0.8rem">' + s.staffId + '</td>';
     html += '<td style="font-weight:500">' + s.name + (isEnabled ? '' : ' <span style="font-size:0.7rem;color:var(--text3)">[無効]</span>') + '</td>';
@@ -583,14 +631,15 @@ function renderAdminStaff() {
   html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">スタッフ追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:10px;">';
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;"><input class="admin-input" id="newStaffId" placeholder="社員番号" style="width:120px"><input class="admin-input" id="newStaffPass" placeholder="パスワード" style="width:140px"><input class="admin-input" id="newStaffName" placeholder="氏名" style="flex:1;min-width:120px"></div>';
-  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;"><select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()"><option value="新スタッフ">新スタッフ</option><option value="トレーナー">トレーナー</option><option value="店長">店長</option><option value="管理職">管理職</option></select>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">';
+  html += '<select class="admin-select" id="newStaffCareer"><option value="">キャリア選択</option><option value="SB">SB</option><option value="AU">AU</option></select>';
+  html += '<select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()"><option value="新スタッフ">新スタッフ</option><option value="トレーナー">トレーナー</option><option value="店長">店長</option><option value="管理職">管理職</option></select>';
   html += '<div style="flex:1;min-width:160px;"><input class="admin-input" id="newStaffTraineeId" placeholder="新人ID（例：trainee001）" style="width:100%"><div class="admin-hint" id="traineeIdHint">新スタッフ：本人のID / トレーナー・店長：担当する新スタッフのID</div></div>';
   html += '<input class="admin-input" id="newStaffYear" placeholder="入社年度" style="width:100px" type="number"></div>';
   html += '<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button></div></div>';
   return html;
 }
 
-// ===== 管理職操作 =====
 function setAdminView(v) { state.adminView = v; state.staffList = null; document.getElementById('main').innerHTML = renderAdmin(); if (v === 'items') initDrag(); }
 
 function updateTraineeIdHint() {
@@ -664,13 +713,14 @@ function doAddStaff() {
   const password = document.getElementById('newStaffPass').value.trim();
   const name = document.getElementById('newStaffName').value.trim();
   const role = document.getElementById('newStaffRole').value;
+  const career = document.getElementById('newStaffCareer').value;
   const traineeId = document.getElementById('newStaffTraineeId').value.trim();
   const year = document.getElementById('newStaffYear').value.trim();
   if (!staffId || !password || !name) { showToast('社員番号・パスワード・氏名は必須です', 'error'); return; }
-  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ', enabled: true });
+  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ', enabled: true, career: career });
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('スタッフを追加しました', 'success');
-  callGAS('addStaff', { staffId, password, name, role, traineeId, year }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+  callGAS('addStaff', { staffId, password, name, role, traineeId, year, career }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
 function startEditStaff(staffId) {
@@ -685,6 +735,7 @@ function startEditStaff(staffId) {
     '<div style="display:flex;flex-direction:column;gap:10px">' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">氏名</label><input class="admin-input" id="es-name" value="' + s.name + '" style="flex:1"></div>' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">役職</label><select class="admin-select" id="es-role" style="flex:1"><option value="新スタッフ"' + (s.role==='新スタッフ'?' selected':'') + '>新スタッフ</option><option value="トレーナー"' + (s.role==='トレーナー'?' selected':'') + '>トレーナー</option><option value="店長"' + (s.role==='店長'?' selected':'') + '>店長</option><option value="管理職"' + (s.role==='管理職'?' selected':'') + '>管理職</option></select></div>' +
+    '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">キャリア</label><select class="admin-select" id="es-career" style="flex:1"><option value=""' + (!s.career?' selected':'') + '>—</option><option value="SB"' + (s.career==='SB'?' selected':'') + '>SB</option><option value="AU"' + (s.career==='AU'?' selected':'') + '>AU</option></select></div>' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">' + roleHint + '</label><input class="admin-input" id="es-trainee" value="' + (s.traineeId||'') + '" style="flex:1"></div>' +
     '<div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.75rem;color:var(--text2);width:80px;flex-shrink:0">入社年度</label><input class="admin-input" id="es-year" value="' + (s.year||'') + '" type="number" style="flex:1"></div>' +
     '</div>' +
@@ -697,16 +748,17 @@ function doUpdateStaff(staffId) {
   const s = state.staffList.find(function(x) { return x.staffId === staffId; });
   const name = document.getElementById('es-name').value.trim();
   const role = document.getElementById('es-role').value;
+  const career = document.getElementById('es-career').value;
   const traineeId = document.getElementById('es-trainee').value.trim();
   const year = document.getElementById('es-year').value.trim();
   const active = s ? s.active : false;
   if (!name) { showToast('氏名は必須です', 'error'); return; }
   const modal = document.getElementById('editStaffModal');
   if (modal) modal.remove();
-  if (s) { s.name = name; s.role = role; s.traineeId = traineeId; s.year = year; }
+  if (s) { s.name = name; s.role = role; s.traineeId = traineeId; s.year = year; s.career = career; }
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('更新しました', 'success');
-  callGAS('updateStaff', { staffId, name, role, traineeId, year, active, enabled: s ? s.enabled !== false : true })
+  callGAS('updateStaff', { staffId, name, role, traineeId, year, active, enabled: s ? s.enabled !== false : true, career })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -717,7 +769,7 @@ function doToggleActive(staffId) {
   s.active = newActive;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newActive ? '表示中に変更しました' : '非表示に変更しました', 'success');
-  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive, enabled: s.enabled !== false })
+  callGAS('updateStaff', { staffId, name: s.name, role: s.role, traineeId: s.traineeId, year: s.year, active: newActive, enabled: s.enabled !== false, career: s.career || '' })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -741,11 +793,24 @@ function doDeleteStaff(staffId, staffName) {
 }
 
 function renderOverview() {
+  const isAdmin = state.user.role === '管理職';
   let html = '<div class="overview-grid">';
   state.trainees.forEach(function(t) {
     const total = getTotalProgress(t.traineeId);
     const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
-    html += '<div class="overview-card"><div class="overview-card-name">' + t.name + '<span class="overview-pct-big">' + pct + '%</span></div>';
+    const trainerNames = getTrainerNames(t.traineeId);
+    const careerLabel = t.career === 'SB'
+      ? '<span class="career-badge career-sb">SB</span>'
+      : t.career === 'AU'
+      ? '<span class="career-badge career-au">AU</span>'
+      : '';
+
+    html += '<div class="overview-card">';
+    html += '<div class="overview-card-name">';
+    html += '<span>' + t.name + (isAdmin && careerLabel ? ' ' + careerLabel : '') + '</span>';
+    html += '<span class="overview-pct-big">' + pct + '%</span>';
+    html += '</div>';
+    if (trainerNames) html += '<div class="overview-card-sub">担当：' + trainerNames + '</div>';
     html += '<div class="progress-wrap" style="margin-bottom:10px"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
     html += '<div class="overview-sections">';
     state.categories.forEach(function(cat) {
@@ -799,7 +864,6 @@ function renderDetail(canEdit) {
           : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
 
         html += '<div class="item-row">';
-        // 業務内容列（項目名＋注釈＋スマホ用バッジ）
         html += '<div class="item-name-wrap" style="justify-content:space-between;align-items:flex-start;">';
         html += '<span>';
         html += '<span class="item-name">' + item.name + '</span>';
@@ -809,7 +873,6 @@ function renderDetail(canEdit) {
         html += '</div>';
 
         html += '<div class="item-checks">';
-        // 指導①列
         html += '<div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check ' + (rec.taughtDate ? 'checked' : '') + '" onclick="toggleTaught(\'' + traineeId + '\',\'' + item.id + '\')">';
@@ -825,7 +888,6 @@ function renderDetail(canEdit) {
           html += '</div>';
         }
         html += '</div>';
-        // 再指導②列
         html += '<div class="check-col">';
         if (canEdit) {
           html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
@@ -841,7 +903,6 @@ function renderDetail(canEdit) {
           html += '</div>';
         }
         html += '</div>';
-        // 状態列（PC版のみ）
         html += '<div class="pc-only" style="align-items:center;justify-content:center;">';
         if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
         html += '</div>';
