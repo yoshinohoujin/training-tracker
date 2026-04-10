@@ -763,7 +763,8 @@ function renderDetail(canEdit) {
   const traineeId = state.currentTrainee;
   const total = getTotalProgress(traineeId);
   const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
-  const traineeName = (state.trainees.find(function(t) { return t.traineeId === traineeId; }) || {}).name || '';
+  const traineeObj = state.trainees.find(function(t) { return String(t.traineeId) === String(traineeId); });
+  const traineeName = traineeObj ? traineeObj.name : '';
   const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
 
   let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の進捗</div>';
