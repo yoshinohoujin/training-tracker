@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v12 -->
+<!-- v13 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -52,10 +52,15 @@
   .main-content { flex: 1; overflow-y: auto; }
   .main { padding: 16px; max-width: 960px; margin: 0 auto; }
 
-  .trainee-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .trainee-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .trainee-label { font-size: 0.85rem; color: var(--text2); }
   .trainee-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .trainee-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+
+  /* 指導/獲得タブ */
+  .detail-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
+  .detail-tab { padding: 6px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
+  .detail-tab.active { background: var(--accent); color: #fff; font-weight: 500; }
 
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
   .section-title { font-size: 1.1rem; font-weight: 700; }
@@ -103,17 +108,43 @@
   .grade-btn.active-C { background: rgba(217,119,6,0.15); border-color: var(--yellow); color: var(--yellow); }
   .grade-btn.active-D { background: rgba(220,38,38,0.15); border-color: var(--red); color: var(--red); }
 
-  .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  /* 獲得評価セクション */
+  .acq-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(30,35,64,0.06); margin-bottom: 12px; }
+  .acq-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.7rem; color: var(--text2); margin-bottom: 16px; }
+  .acq-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .acq-row:last-child { border-bottom: none; }
+  .acq-item-name { font-weight: 500; }
+  .acq-grade-area { display: flex; align-items: center; gap: 8px; }
+  .acq-grade-val { font-size: 0.9rem; font-weight: 700; min-width: 16px; text-align: center; }
+  .acq-grade-val.grade-A { color: var(--green); }
+  .acq-grade-val.grade-B { color: var(--accent); }
+  .acq-grade-val.grade-C { color: var(--yellow); }
+  .acq-grade-val.grade-D { color: var(--red); }
+  .acq-grade-val.grade-none { color: var(--text3); }
+  .acq-date { font-size: 0.72rem; color: var(--text3); }
+
+  /* 全体一覧 */
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .overview-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 4px rgba(30,35,64,0.06); }
-  .overview-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-  .overview-card-sub { font-size: 0.72rem; color: var(--text3); margin-bottom: 10px; }
-  .overview-pct-big { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
-  .overview-sections { display: flex; flex-direction: column; gap: 6px; }
+  .overview-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .overview-card-sub { font-size: 0.72rem; color: var(--text3); margin-bottom: 12px; }
+  .overview-sections { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
   .overview-row { display: flex; align-items: center; gap: 8px; }
   .overview-name { font-size: 0.7rem; color: var(--text2); width: 80px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .overview-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
   .overview-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; }
   .overview-pct { font-size: 0.7rem; color: var(--text3); width: 28px; text-align: right; }
+  .overview-acq { border-top: 0.5px solid var(--border); padding-top: 10px; }
+  .overview-acq-label { font-size: 0.7rem; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
+  .overview-acq-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; font-size: 0.8rem; border-bottom: 0.5px solid var(--border); }
+  .overview-acq-row:last-child { border-bottom: none; }
+  .overview-acq-name { color: var(--text); }
+  .overview-acq-grade { font-weight: 700; font-size: 0.8rem; }
+  .overview-acq-grade.grade-A { color: var(--green); }
+  .overview-acq-grade.grade-B { color: var(--accent); }
+  .overview-acq-grade.grade-C { color: var(--yellow); }
+  .overview-acq-grade.grade-D { color: var(--red); }
+  .overview-acq-grade.grade-none { color: var(--text3); }
 
   .career-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
   .career-sb { background: rgba(37,99,235,0.1); color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
@@ -132,7 +163,6 @@
   .toast.success { border-left: 3px solid var(--green); }
   .toast.error { border-left: 3px solid var(--red); }
 
-  /* ADMIN */
   .admin-tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
   .admin-tab { padding: 8px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .admin-tab.active { background: var(--accent2); color: #fff; font-weight: 500; }
@@ -167,7 +197,6 @@
   .dragging { opacity: 0.4; }
   .drag-over-top { border-top: 2px solid var(--accent) !important; }
   .drag-over-bottom { border-bottom: 2px solid var(--accent) !important; }
-
   .back-btn { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .back-btn:hover { background: var(--surface2); }
 
@@ -193,6 +222,8 @@
     .view-tab { flex: 1; text-align: center; }
     .admin-tabs { width: 100%; }
     .admin-tab { flex: 1; text-align: center; }
+    .detail-tabs { width: 100%; }
+    .detail-tab { flex: 1; text-align: center; }
     .sp-only { display: inline-flex; }
     .pc-only { display: none !important; }
     .item-name-wrap { justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
@@ -243,13 +274,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby40nsb7vEAKNLgpVehpm0EAXgf05atMzwqvAKNZlyLESaezju3nOqiYEvkLrXdibIviQ/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyAvpop6GfUOTPE6RoIzUOEs9PzlJXPA0g5t26dMnvmZcY1Ug6ZSsdY_6mmAbkC_EPpFw/exec';
 
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
-  categories: [], trainees: [], data: {}, view: 'detail',
+  categories: [], trainees: [], data: {}, view: 'detail', detailTab: 'training',
   openCategories: new Set(), adminView: 'items', staffList: null,
-  adminOpenCats: null
+  adminOpenCats: null, acqItems: [], acqData: {}
 };
 
 const NO_CACHE = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
@@ -270,22 +301,17 @@ function callGAS(func, params, _retry) {
     var timer = setTimeout(function() {
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
-      if (!_retry) {
-        callGAS(func, params, true).then(resolve).catch(reject);
-      } else {
-        reject(new Error('タイムアウト'));
-      }
+      if (!_retry) { callGAS(func, params, true).then(resolve).catch(reject); }
+      else { reject(new Error('タイムアウト')); }
     }, 60000);
     window[callbackName] = function(data) {
-      clearTimeout(timer);
-      delete window[callbackName];
+      clearTimeout(timer); delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
       if (data.error) reject(new Error(data.error));
       else { if (NO_CACHE.indexOf(func) === -1) gasCache[cacheKey] = data.result; resolve(data.result); }
     };
     script.onerror = function() { clearTimeout(timer); delete window[callbackName]; reject(new Error('通信エラー')); };
-    script.src = url;
-    document.body.appendChild(script);
+    script.src = url; document.body.appendChild(script);
   });
 }
 
@@ -314,7 +340,7 @@ document.getElementById('inputPassword').addEventListener('keydown', function(e)
 
 function doLogout() {
   localStorage.removeItem('loginUser');
-  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', openCategories: new Set(), adminView: 'items', staffList: null, adminOpenCats: null };
+  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', detailTab: 'training', openCategories: new Set(), adminView: 'items', staffList: null, adminOpenCats: null, acqItems: [], acqData: {} };
   document.getElementById('appScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('inputStaffId').value = '';
@@ -332,7 +358,6 @@ function getAssignedTrainee(trainees) {
   return trainees.length > 0 ? trainees[0].traineeId : null;
 }
 
-// 担当トレーナー名を取得（staffListから逆引き）
 function getTrainerNames(traineeId) {
   if (!state.staffList) return '';
   const trainers = state.staffList.filter(function(s) {
@@ -353,25 +378,35 @@ function initApp() {
   if (role === '新スタッフ') {
     state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name, career: career }];
     state.currentTrainee = state.user.traineeId;
-    Promise.all([callGAS('getCategories', { career: career }), callGAS('getProgress', { traineeId: state.user.traineeId })])
-      .then(function(results) {
-        state.categories = results[0];
-        if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
-        state.data[state.user.traineeId] = results[1];
-        render();
-      }).catch(showError);
+    Promise.all([
+      callGAS('getCategories', { career: career }),
+      callGAS('getProgress', { traineeId: state.user.traineeId }),
+      callGAS('getAcqItems', { career: career }),
+      callGAS('getAcqProgress', { traineeId: state.user.traineeId })
+    ]).then(function(results) {
+      state.categories = results[0];
+      if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
+      state.data[state.user.traineeId] = results[1];
+      state.acqItems = results[2];
+      state.acqData[state.user.traineeId] = results[3];
+      render();
+    }).catch(showError);
   } else if (role === '管理職' || role === '店長') {
     Promise.all([
       callGAS('getCategories', { career: career }),
       callGAS('getTrainees', { career: career }),
       callGAS('getAllProgress', { career: career }),
-      callGAS('getStaffList')
+      callGAS('getStaffList'),
+      callGAS('getAcqItems', { career: career }),
+      callGAS('getAllAcqProgress', { career: career })
     ]).then(function(results) {
       state.categories = results[0];
       if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
       state.trainees = results[1];
       state.data = results[2];
       state.staffList = results[3];
+      state.acqItems = results[4];
+      state.acqData = results[5];
       if (state.trainees.length > 0) state.currentTrainee = getAssignedTrainee(state.trainees);
       render();
     }).catch(showError);
@@ -379,16 +414,22 @@ function initApp() {
     Promise.all([
       callGAS('getCategories', { career: career }),
       callGAS('getTrainees', { career: career }),
-      callGAS('getStaffList')
+      callGAS('getStaffList'),
+      callGAS('getAcqItems', { career: career })
     ]).then(function(results) {
       state.categories = results[0];
       if (state.categories.length > 0) state.currentCategory = state.categories[0].id;
       state.trainees = results[1];
       state.staffList = results[2];
+      state.acqItems = results[3];
       if (state.trainees.length > 0) {
         state.currentTrainee = getAssignedTrainee(state.trainees);
-        return callGAS('getProgress', { traineeId: state.currentTrainee }).then(function(progress) {
-          state.data[state.currentTrainee] = progress;
+        return Promise.all([
+          callGAS('getProgress', { traineeId: state.currentTrainee }),
+          callGAS('getAcqProgress', { traineeId: state.currentTrainee })
+        ]).then(function(r) {
+          state.data[state.currentTrainee] = r[0];
+          state.acqData[state.currentTrainee] = r[1];
           render();
         });
       } else { render(); }
@@ -397,13 +438,26 @@ function initApp() {
 }
 
 function loadProgressData(traineeId) {
-  return callGAS('getProgress', { traineeId }).then(function(progress) { state.data[traineeId] = progress; render(); });
+  return Promise.all([
+    callGAS('getProgress', { traineeId }),
+    callGAS('getAcqProgress', { traineeId })
+  ]).then(function(results) {
+    state.data[traineeId] = results[0];
+    state.acqData[traineeId] = results[1];
+    render();
+  });
 }
 
 function getRecord(traineeId, itemId) {
   if (!state.data[traineeId]) state.data[traineeId] = {};
   if (!state.data[traineeId][itemId]) state.data[traineeId][itemId] = { taughtDate: '', grade: '', retaughtDate: '', grade2: '' };
   return state.data[traineeId][itemId];
+}
+
+function getAcqRecord(traineeId, itemId) {
+  if (!state.acqData[traineeId]) state.acqData[traineeId] = {};
+  if (!state.acqData[traineeId][itemId]) state.acqData[traineeId][itemId] = { grade: '', date: '' };
+  return state.acqData[traineeId][itemId];
 }
 
 function getCategoryProgress(traineeId, catId) {
@@ -448,8 +502,7 @@ function renderMain() {
 
   if (isAdmin && state.view === 'admin') {
     document.getElementById('main').innerHTML = renderAdmin();
-    initDrag();
-    return;
+    initDrag(); return;
   }
 
   if (!isNew) {
@@ -468,8 +521,206 @@ function renderMain() {
     html += '</div>';
   }
 
-  if (isManager && state.view === 'overview') { html += renderOverview(); } else { html += renderDetail(canEdit); }
+  if (isManager && state.view === 'overview') {
+    html += renderOverview();
+  } else {
+    // 指導/獲得タブ
+    html += '<div class="detail-tabs">';
+    html += '<button class="detail-tab ' + (state.detailTab === 'training' ? 'active' : '') + '" onclick="setDetailTab(\'training\')">指導</button>';
+    html += '<button class="detail-tab ' + (state.detailTab === 'acq' ? 'active' : '') + '" onclick="setDetailTab(\'acq\')">獲得</button>';
+    html += '</div>';
+    if (state.detailTab === 'training') {
+      html += renderDetail(canEdit);
+    } else {
+      html += renderAcqDetail(canEdit);
+    }
+  }
   document.getElementById('main').innerHTML = html;
+}
+
+function setDetailTab(tab) {
+  state.detailTab = tab;
+  renderMain();
+}
+
+function renderOverview() {
+  const isAdmin = state.user.role === '管理職';
+  let html = '<div class="overview-grid">';
+  state.trainees.forEach(function(t) {
+    const total = getTotalProgress(t.traineeId);
+    const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
+    const trainerNames = getTrainerNames(t.traineeId);
+    const careerLabel = t.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : t.career === 'AU' ? '<span class="career-badge career-au">AU</span>' : '';
+
+    html += '<div class="overview-card">';
+    html += '<div class="overview-card-name">' + t.name + (isAdmin && careerLabel ? careerLabel : '') + '</div>';
+    if (trainerNames) html += '<div class="overview-card-sub">担当：' + trainerNames + '</div>';
+    html += '<div class="overview-sections">';
+    state.categories.forEach(function(cat) {
+      const p = getCategoryProgress(t.traineeId, cat.id);
+      const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
+      html += '<div class="overview-row"><span class="overview-name">' + cat.name + '</span><div class="overview-bar"><div class="overview-bar-fill" style="width:' + cpct + '%"></div></div><span class="overview-pct">' + cpct + '%</span></div>';
+    });
+    html += '</div>';
+
+    // 獲得評価
+    if (state.acqItems && state.acqItems.length > 0) {
+      html += '<div class="overview-acq"><div class="overview-acq-label">獲得評価</div>';
+      state.acqItems.forEach(function(item) {
+        const rec = getAcqRecord(t.traineeId, item.itemId);
+        const gradeClass = rec.grade ? 'grade-' + rec.grade : 'grade-none';
+        html += '<div class="overview-acq-row">';
+        html += '<span class="overview-acq-name">' + item.itemName + '</span>';
+        html += '<span class="overview-acq-grade ' + gradeClass + '">' + (rec.grade || '—') + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  return html + '</div>';
+}
+
+function renderAcqDetail(canEdit) {
+  if (!state.currentTrainee) return '<div class="loading">新スタッフが登録されていません</div>';
+  const traineeId = state.currentTrainee;
+  const traineeObj = state.trainees.find(function(t) { return String(t.traineeId) === String(traineeId); });
+  const traineeName = traineeObj ? traineeObj.name : '';
+
+  let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の獲得評価</div></div>';
+
+  html += '<div class="acq-legend">';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：一人で獲得</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：フォローあり</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：登録のみ</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：横で見ていた</span>';
+  html += '</div>';
+
+  if (!state.acqItems || state.acqItems.length === 0) {
+    return html + '<div class="loading">獲得項目が登録されていません</div>';
+  }
+
+  const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
+
+  html += '<div class="acq-block">';
+  state.acqItems.forEach(function(item) {
+    const rec = getAcqRecord(traineeId, item.itemId);
+    html += '<div class="acq-row">';
+    html += '<div><span class="acq-item-name">' + item.itemName + '</span>';
+    if (rec.date) html += '<div class="acq-date">' + rec.date + '</div>';
+    html += '</div>';
+    html += '<div class="acq-grade-area">';
+    if (canEdit || state.user.role === '管理職') {
+      ['A','B','C','D'].forEach(function(g) {
+        html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>';
+      });
+    } else {
+      const gradeClass = rec.grade ? 'grade-' + rec.grade : 'grade-none';
+      html += '<span class="acq-grade-val ' + gradeClass + '">' + (rec.grade || '—') + '</span>';
+    }
+    html += '</div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function updateAcqGrade(traineeId, itemId, grade) {
+  const rec = getAcqRecord(traineeId, itemId);
+  rec.grade = grade;
+  rec.date = grade ? todayStr() : '';
+  renderMain();
+  callGAS('saveAcqProgress', { traineeId, itemId, grade })
+    .then(function() { showToast('保存しました ✓', 'success'); })
+    .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
+}
+
+function renderDetail(canEdit) {
+  if (!state.currentTrainee) return '<div class="loading">新スタッフが登録されていません</div>';
+  const traineeId = state.currentTrainee;
+  const total = getTotalProgress(traineeId);
+  const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
+  const traineeObj = state.trainees.find(function(t) { return String(t.traineeId) === String(traineeId); });
+  const traineeName = traineeObj ? traineeObj.name : '';
+  const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
+
+  let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の進捗</div>';
+  html += '<div class="section-stats"><div class="stat-item"><div class="stat-num">' + pct + '%</div><div class="stat-label">指導済み</div></div>';
+  html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
+  html += '<div class="progress-wrap"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
+  html += '<div class="legend">';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：1人で実践できる</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：援助があれば実践できる</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
+  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
+  html += '</div>';
+
+  state.categories.forEach(function(cat) {
+    const isOpen = state.openCategories.has(cat.id);
+    const p = getCategoryProgress(traineeId, cat.id);
+    const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
+    html += '<div class="category-block"><div class="category-head" onclick="toggleCategory(\'' + cat.id + '\')">';
+    html += '<div class="category-head-left"><span class="category-chevron ' + (isOpen ? 'open' : '') + '">▼</span>';
+    html += '<span class="category-name">' + cat.name + '</span><span class="category-count">' + p.taught + '/' + p.total + '</span></div>';
+    html += '<div style="display:flex;align-items:center;gap:8px"><div class="category-mini-bar"><div class="category-mini-fill" style="width:' + cpct + '%"></div></div>';
+    html += '<span style="font-size:0.7rem;color:var(--text3)">' + cpct + '%</span></div></div>';
+
+    if (isOpen) {
+      html += '<div class="item-row-header"><div>業務内容</div><div>指導日 / 習得度①</div><div>再指導日 / 習得度②</div><div>状態</div></div>';
+      cat.items.forEach(function(item) {
+        const rec = getRecord(traineeId, item.id);
+        const status = rec.retaughtDate ? 'done' : rec.taughtDate ? 'taught' : 'none';
+        const statusLabel = status === 'done' ? '再指導済み' : status === 'taught' ? '指導済み' : '';
+        const statusStyle = status === 'done'
+          ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
+          : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
+
+        html += '<div class="item-row">';
+        html += '<div class="item-name-wrap" style="justify-content:space-between;align-items:flex-start;">';
+        html += '<span><span class="item-name">' + item.name + '</span>';
+        if (item.note) html += '<span class="item-note">' + item.note + '</span>';
+        html += '</span>';
+        if (statusLabel) html += '<span class="status-badge sp-only" style="' + statusStyle + '">● ' + statusLabel + '</span>';
+        html += '</div>';
+        html += '<div class="item-checks">';
+        html += '<div class="check-col">';
+        if (canEdit) {
+          html += '<label class="taught-check ' + (rec.taughtDate ? 'checked' : '') + '" onclick="toggleTaught(\'' + traineeId + '\',\'' + item.id + '\')">';
+          html += '<div class="check-box">' + (rec.taughtDate ? '✓' : '') + '</div>';
+          html += '<span class="taught-date-label">' + (rec.taughtDate || '未指導') + '</span></label>';
+          html += '<div class="grade-select">';
+          ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>'; });
+          html += '</div>';
+        } else {
+          html += '<div style="display:flex;align-items:center;gap:8px;">';
+          html += '<span style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</span>';
+          html += '<span style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+        html += '<div class="check-col">';
+        if (canEdit) {
+          html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
+          html += '<div class="check-box" style="' + (rec.retaughtDate ? 'background:var(--accent2);border-color:var(--accent2)' : '') + '">' + (rec.retaughtDate ? '✓' : '') + '</div>';
+          html += '<span class="taught-date-label" style="' + (rec.retaughtDate ? 'color:var(--accent2)' : '') + '">' + (rec.retaughtDate || '未実施') + '</span></label>';
+          html += '<div class="grade-select">';
+          ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade2 === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade2\',\'' + (rec.grade2 === g ? '' : g) + '\')">' + g + '</button>'; });
+          html += '</div>';
+        } else {
+          html += '<div style="display:flex;align-items:center;gap:8px;">';
+          html += '<span style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</span>';
+          html += '<span style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+        html += '<div class="pc-only" style="align-items:center;justify-content:center;">';
+        if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
+        html += '</div>';
+        html += '</div></div>';
+      });
+    }
+    html += '</div>';
+  });
+  return html;
 }
 
 function renderAdmin() {
@@ -522,8 +773,7 @@ function renderAdminItems() {
 function toggleAdminCat(catId) {
   if (!state.adminOpenCats) state.adminOpenCats = new Set();
   state.adminOpenCats.has(catId) ? state.adminOpenCats.delete(catId) : state.adminOpenCats.add(catId);
-  document.getElementById('main').innerHTML = renderAdmin();
-  initDrag();
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
 }
 
 function initDrag() {
@@ -550,7 +800,6 @@ function initDrag() {
       if (draggedCatId === targetCatId) saveItemOrder(targetCatId);
     });
   });
-
   document.querySelectorAll('.cat-drag-handle').forEach(function(handle) {
     const sec = handle.closest('.admin-section');
     if (!sec) return;
@@ -558,20 +807,15 @@ function initDrag() {
     handle.addEventListener('dragstart', function(e) { e.dataTransfer.setData('type', 'category'); e.dataTransfer.setData('catId', sec.dataset.catId); sec.classList.add('dragging'); e.stopPropagation(); });
     handle.addEventListener('dragend', function() { sec.classList.remove('dragging'); document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); }); });
   });
-
   document.querySelectorAll('#cat-list > .admin-section').forEach(function(sec) {
     sec.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
+      e.preventDefault(); document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
       const rect = sec.getBoundingClientRect();
-      const line = document.createElement('div');
-      line.className = 'cat-drop-line';
-      line.style.cssText = 'height:3px;background:var(--accent);margin:0 8px;border-radius:2px;';
+      const line = document.createElement('div'); line.className = 'cat-drop-line'; line.style.cssText = 'height:3px;background:var(--accent);margin:0 8px;border-radius:2px;';
       if (e.clientY < rect.top + rect.height / 2) { sec.parentNode.insertBefore(line, sec); } else { sec.parentNode.insertBefore(line, sec.nextSibling); }
     });
     sec.addEventListener('drop', function(e) {
-      e.preventDefault(); e.stopPropagation();
-      document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
+      e.preventDefault(); e.stopPropagation(); document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); });
       const draggedCatId = e.dataTransfer.getData('catId'); const targetCatId = sec.dataset.catId;
       if (!draggedCatId || draggedCatId === targetCatId) return;
       const insertBefore = e.clientY < sec.getBoundingClientRect().top + sec.getBoundingClientRect().height / 2;
@@ -583,23 +827,18 @@ function initDrag() {
       document.getElementById('main').innerHTML = renderAdmin(); initDrag(); saveCategoryOrder();
     });
   });
-
   const catList = document.getElementById('cat-list');
-  if (catList) {
-    catList.addEventListener('dragleave', function(e) { if (!catList.contains(e.relatedTarget)) { document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); }); } });
-  }
+  if (catList) { catList.addEventListener('dragleave', function(e) { if (!catList.contains(e.relatedTarget)) { document.querySelectorAll('.cat-drop-line').forEach(function(el) { el.remove(); }); } }); }
 }
 
 function saveItemOrder(catId) {
   const cat = state.categories.find(function(c) { return c.id === catId; });
   if (!cat) return;
-  callGAS('saveItemOrder', { catId, orderedIds: cat.items.map(function(i) { return i.id; }) })
-    .catch(function(e) { showToast('順番の保存失敗: ' + e.message, 'error'); });
+  callGAS('saveItemOrder', { catId, orderedIds: cat.items.map(function(i) { return i.id; }) }).catch(function(e) { showToast('順番の保存失敗: ' + e.message, 'error'); });
 }
 
 function saveCategoryOrder() {
-  callGAS('saveCategoryOrder', { orderedIds: state.categories.map(function(c) { return c.id; }) })
-    .catch(function(e) { showToast('カテゴリ順の保存失敗: ' + e.message, 'error'); });
+  callGAS('saveCategoryOrder', { orderedIds: state.categories.map(function(c) { return c.id; }) }).catch(function(e) { showToast('カテゴリ順の保存失敗: ' + e.message, 'error'); });
 }
 
 function renderAdminStaff() {
@@ -648,8 +887,8 @@ function updateTraineeIdHint() {
   const hint = document.getElementById('traineeIdHint');
   const input = document.getElementById('newStaffTraineeId');
   if (!hint || !input) return;
-  if (role === '新スタッフ') { hint.textContent = '新スタッフ本人のID（例：trainee001）'; input.placeholder = '新人ID（例：trainee001）'; }
-  else if (role === 'トレーナー' || role === '店長') { hint.textContent = '担当する新スタッフのID（例：trainee001）'; input.placeholder = '担当新人ID（例：trainee001）'; }
+  if (role === '新スタッフ') { hint.textContent = '新スタッフ本人のID'; input.placeholder = '新人ID'; }
+  else if (role === 'トレーナー' || role === '店長') { hint.textContent = '担当する新スタッフのID'; input.placeholder = '担当新人ID'; }
   else { hint.textContent = '不要な場合は空白のままでOK'; input.placeholder = '担当新人ID（任意）'; }
 }
 
@@ -682,8 +921,7 @@ function startEditItem(itemId, currentName, currentNote) {
   const span = document.getElementById('item-name-' + itemId);
   if (!span) return;
   const editBtn = span.nextElementSibling;
-  span.innerHTML =
-    '<input class="admin-input" id="edit-item-' + itemId + '" value="' + currentName + '" placeholder="項目名" style="width:100%;margin-bottom:4px">' +
+  span.innerHTML = '<input class="admin-input" id="edit-item-' + itemId + '" value="' + currentName + '" placeholder="項目名" style="width:100%;margin-bottom:4px">' +
     '<input class="admin-input" id="edit-note-' + itemId + '" value="' + (currentNote||'').replace(/"/g,'&quot;') + '" placeholder="注釈（任意）" style="width:100%;font-size:0.8rem">';
   editBtn.textContent = '保存';
   editBtn.onclick = function() { doUpdateItem(itemId); };
@@ -718,7 +956,7 @@ function doAddStaff() {
   const traineeId = document.getElementById('newStaffTraineeId').value.trim();
   const year = document.getElementById('newStaffYear').value.trim();
   if (!staffId || !password || !name) { showToast('社員番号・パスワード・氏名は必須です', 'error'); return; }
-  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ', enabled: true, career: career });
+  if (state.staffList) state.staffList.push({ staffId, name, role, traineeId, year, active: role === '新スタッフ', enabled: true, career });
   document.getElementById('main').innerHTML = renderAdmin();
   showToast('スタッフを追加しました', 'success');
   callGAS('addStaff', { staffId, password, name, role, traineeId, year, career }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
@@ -781,7 +1019,7 @@ function doToggleEnabled(staffId) {
   s.enabled = newEnabled;
   document.getElementById('main').innerHTML = renderAdmin();
   showToast(newEnabled ? '有効化しました' : '無効化しました', newEnabled ? 'success' : 'error');
-  callGAS('setStaffEnabled', { staffId: staffId, enabled: newEnabled })
+  callGAS('setStaffEnabled', { staffId, enabled: newEnabled })
     .catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
@@ -793,131 +1031,12 @@ function doDeleteStaff(staffId, staffName) {
   callGAS('deleteStaff', { staffId }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
 
-function renderOverview() {
-  const isAdmin = state.user.role === '管理職';
-  let html = '<div class="overview-grid">';
-  state.trainees.forEach(function(t) {
-    const total = getTotalProgress(t.traineeId);
-    const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
-    const trainerNames = getTrainerNames(t.traineeId);
-    const careerLabel = t.career === 'SB'
-      ? '<span class="career-badge career-sb">SB</span>'
-      : t.career === 'AU'
-      ? '<span class="career-badge career-au">AU</span>'
-      : '';
-
-    html += '<div class="overview-card">';
-    html += '<div class="overview-card-name">';
-    html += '<span>' + t.name + (isAdmin && careerLabel ? ' ' + careerLabel : '') + '</span>';
-    html += '<span class="overview-pct-big">' + pct + '%</span>';
-    html += '</div>';
-    if (trainerNames) html += '<div class="overview-card-sub">担当：' + trainerNames + '</div>';
-    html += '<div class="progress-wrap" style="margin-bottom:10px"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
-    html += '<div class="overview-sections">';
-    state.categories.forEach(function(cat) {
-      const p = getCategoryProgress(t.traineeId, cat.id);
-      const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
-      html += '<div class="overview-row"><span class="overview-name">' + cat.name + '</span><div class="overview-bar"><div class="overview-bar-fill" style="width:' + cpct + '%"></div></div><span class="overview-pct">' + cpct + '%</span></div>';
-    });
-    html += '</div></div>';
-  });
-  return html + '</div>';
-}
-
-function renderDetail(canEdit) {
-  if (!state.currentTrainee) return '<div class="loading">新スタッフが登録されていません</div>';
-  const traineeId = state.currentTrainee;
-  const total = getTotalProgress(traineeId);
-  const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
-  const traineeObj = state.trainees.find(function(t) { return String(t.traineeId) === String(traineeId); });
-  const traineeName = traineeObj ? traineeObj.name : '';
-  const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
-
-  let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の進捗</div>';
-  html += '<div class="section-stats"><div class="stat-item"><div class="stat-num">' + pct + '%</div><div class="stat-label">指導済み</div></div>';
-  html += '<div class="stat-item"><div class="stat-num" style="color:var(--text2)">' + total.total + '</div><div class="stat-label">総項目</div></div></div></div>';
-  html += '<div class="progress-wrap"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
-  html += '<div class="legend">';
-  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：1人で実践できる</span>';
-  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：援助があれば実践できる</span>';
-  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：練習が必要</span>';
-  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：再度説明が必要</span>';
-  html += '</div>';
-
-  state.categories.forEach(function(cat) {
-    const isOpen = state.openCategories.has(cat.id);
-    const p = getCategoryProgress(traineeId, cat.id);
-    const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
-    html += '<div class="category-block"><div class="category-head" onclick="toggleCategory(\'' + cat.id + '\')">';
-    html += '<div class="category-head-left"><span class="category-chevron ' + (isOpen ? 'open' : '') + '">▼</span>';
-    html += '<span class="category-name">' + cat.name + '</span><span class="category-count">' + p.taught + '/' + p.total + '</span></div>';
-    html += '<div style="display:flex;align-items:center;gap:8px"><div class="category-mini-bar"><div class="category-mini-fill" style="width:' + cpct + '%"></div></div>';
-    html += '<span style="font-size:0.7rem;color:var(--text3)">' + cpct + '%</span></div></div>';
-
-    if (isOpen) {
-      html += '<div class="item-row-header"><div>業務内容</div><div>指導日 / 習得度①</div><div>再指導日 / 習得度②</div><div>状態</div></div>';
-      cat.items.forEach(function(item) {
-        const rec = getRecord(traineeId, item.id);
-        const status = rec.retaughtDate ? 'done' : rec.taughtDate ? 'taught' : 'none';
-        const statusLabel = status === 'done' ? '再指導済み' : status === 'taught' ? '指導済み' : '';
-        const statusStyle = status === 'done'
-          ? 'background:rgba(124,58,237,0.1);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);'
-          : 'background:rgba(37,99,235,0.08);color:var(--accent);border:1px solid rgba(37,99,235,0.15);';
-
-        html += '<div class="item-row">';
-        html += '<div class="item-name-wrap" style="justify-content:space-between;align-items:flex-start;">';
-        html += '<span>';
-        html += '<span class="item-name">' + item.name + '</span>';
-        if (item.note) html += '<span class="item-note">' + item.note + '</span>';
-        html += '</span>';
-        if (statusLabel) html += '<span class="status-badge sp-only" style="' + statusStyle + '">● ' + statusLabel + '</span>';
-        html += '</div>';
-
-        html += '<div class="item-checks">';
-        html += '<div class="check-col">';
-        if (canEdit) {
-          html += '<label class="taught-check ' + (rec.taughtDate ? 'checked' : '') + '" onclick="toggleTaught(\'' + traineeId + '\',\'' + item.id + '\')">';
-          html += '<div class="check-box">' + (rec.taughtDate ? '✓' : '') + '</div>';
-          html += '<span class="taught-date-label">' + (rec.taughtDate || '未指導') + '</span></label>';
-          html += '<div class="grade-select">';
-          ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>'; });
-          html += '</div>';
-        } else {
-          html += '<div style="display:flex;align-items:center;gap:8px;">';
-          html += '<span style="font-size:0.85rem;color:' + (rec.taughtDate ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.taughtDate || '—') + '</span>';
-          html += '<span style="font-weight:700;font-size:0.95rem;color:' + (rec.grade === 'A' ? 'var(--green)' : rec.grade === 'B' ? 'var(--accent)' : rec.grade === 'C' ? 'var(--yellow)' : rec.grade === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade || '—') + '</span>';
-          html += '</div>';
-        }
-        html += '</div>';
-        html += '<div class="check-col">';
-        if (canEdit) {
-          html += '<label class="taught-check retaught ' + (rec.retaughtDate ? 'checked' : '') + '" onclick="toggleRetaught(\'' + traineeId + '\',\'' + item.id + '\')">';
-          html += '<div class="check-box" style="' + (rec.retaughtDate ? 'background:var(--accent2);border-color:var(--accent2)' : '') + '">' + (rec.retaughtDate ? '✓' : '') + '</div>';
-          html += '<span class="taught-date-label" style="' + (rec.retaughtDate ? 'color:var(--accent2)' : '') + '">' + (rec.retaughtDate || '未実施') + '</span></label>';
-          html += '<div class="grade-select">';
-          ['A','B','C','D'].forEach(function(g) { html += '<button class="grade-btn ' + (rec.grade2 === g ? gradeColor[g] : '') + '" onclick="updateField(\'' + traineeId + '\',\'' + item.id + '\',\'grade2\',\'' + (rec.grade2 === g ? '' : g) + '\')">' + g + '</button>'; });
-          html += '</div>';
-        } else {
-          html += '<div style="display:flex;align-items:center;gap:8px;">';
-          html += '<span style="font-size:0.85rem;color:' + (rec.retaughtDate ? 'var(--accent2)' : 'var(--text3)') + '">' + (rec.retaughtDate || '—') + '</span>';
-          html += '<span style="font-weight:700;font-size:0.95rem;color:' + (rec.grade2 === 'A' ? 'var(--green)' : rec.grade2 === 'B' ? 'var(--accent)' : rec.grade2 === 'C' ? 'var(--yellow)' : rec.grade2 === 'D' ? 'var(--red)' : 'var(--text3)') + '">' + (rec.grade2 || '—') + '</span>';
-          html += '</div>';
-        }
-        html += '</div>';
-        html += '<div class="pc-only" style="align-items:center;justify-content:center;">';
-        if (statusLabel) html += '<span class="status-badge" style="' + statusStyle + '">● ' + statusLabel + '</span>';
-        html += '</div>';
-        html += '</div></div>';
-      });
-    }
-    html += '</div>';
-  });
-  return html;
-}
-
 function selectTrainee(traineeId) {
   state.currentTrainee = traineeId;
-  if (!state.data[traineeId]) { document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>'; loadProgressData(traineeId); } else { render(); }
+  if (!state.data[traineeId]) {
+    document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
+    loadProgressData(traineeId);
+  } else { render(); }
 }
 
 function selectCategory(id) {
@@ -930,18 +1049,12 @@ function toggleCategory(id) { state.openCategories.has(id) ? state.openCategorie
 function setView(v) {
   if (state.view === 'admin' && v !== 'admin') {
     state.view = v;
-    state.categories = [];
-    state.trainees = [];
-    state.data = {};
-    state.openCategories = new Set();
+    state.categories = []; state.trainees = []; state.data = {}; state.openCategories = new Set();
+    state.acqItems = []; state.acqData = {};
     document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
-    renderSidebar();
-    initApp();
-    return;
+    renderSidebar(); initApp(); return;
   }
-  state.view = v;
-  renderSidebar();
-  renderMain();
+  state.view = v; renderSidebar(); renderMain();
   if (v === 'admin') setTimeout(initDrag, 50);
 }
 
