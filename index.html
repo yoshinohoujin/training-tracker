@@ -524,9 +524,9 @@ function renderMain() {
   if (isManager && state.view === 'overview') {
     html += renderOverview();
   } else {
-    html += '<div class="detail-tabs">';
-    html += '<button class="detail-tab ' + (state.detailTab === 'training' ? 'active' : '') + '" onclick="setDetailTab(\'training\')">指導</button>';
-    html += '<button class="detail-tab ' + (state.detailTab === 'acq' ? 'active' : '') + '" onclick="setDetailTab(\'acq\')">獲得</button>';
+    html += '<div class="detail-tabs" id="detailTabBar">';
+    html += '<button class="detail-tab ' + (state.detailTab === 'training' ? 'active' : '') + '" id="tab-training">指導</button>';
+    html += '<button class="detail-tab ' + (state.detailTab === 'acq' ? 'active' : '') + '" id="tab-acq">獲得</button>';
     html += '</div>';
     if (state.detailTab === 'training') {
       html += renderDetail(canEdit);
@@ -535,6 +535,11 @@ function renderMain() {
     }
   }
   document.getElementById('main').innerHTML = html;
+  // タブのイベントをDOMで設定
+  const tabTraining = document.getElementById('tab-training');
+  const tabAcq = document.getElementById('tab-acq');
+  if (tabTraining) tabTraining.onclick = function() { state.detailTab = 'training'; renderMain(); };
+  if (tabAcq) tabAcq.onclick = function() { state.detailTab = 'acq'; renderMain(); };
 }
 
 function setDetailTab(tab) {
