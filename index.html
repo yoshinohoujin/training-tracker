@@ -524,7 +524,6 @@ function renderMain() {
   if (isManager && state.view === 'overview') {
     html += renderOverview();
   } else {
-    // 指導/獲得タブ
     html += '<div class="detail-tabs">';
     html += '<button class="detail-tab ' + (state.detailTab === 'training' ? 'active' : '') + '" onclick="setDetailTab(\'training\')">指導</button>';
     html += '<button class="detail-tab ' + (state.detailTab === 'acq' ? 'active' : '') + '" onclick="setDetailTab(\'acq\')">獲得</button>';
@@ -532,7 +531,7 @@ function renderMain() {
     if (state.detailTab === 'training') {
       html += renderDetail(canEdit);
     } else {
-      html += renderAcqDetail(canEdit);
+      html += renderAcqDetail(canEdit || isAdmin);
     }
   }
   document.getElementById('main').innerHTML = html;
@@ -567,7 +566,8 @@ function renderOverview() {
     if (state.acqItems && state.acqItems.length > 0) {
       html += '<div class="overview-acq"><div class="overview-acq-label">獲得評価</div>';
       state.acqItems.forEach(function(item) {
-        const rec = getAcqRecord(t.traineeId, item.itemId);
+        const acqForTrainee = state.acqData[t.traineeId] || {};
+        const rec = acqForTrainee[item.itemId] || { grade: '', date: '' };
         const gradeClass = rec.grade ? 'grade-' + rec.grade : 'grade-none';
         html += '<div class="overview-acq-row">';
         html += '<span class="overview-acq-name">' + item.itemName + '</span>';
@@ -610,7 +610,7 @@ function renderAcqDetail(canEdit) {
     if (rec.date) html += '<div class="acq-date">' + rec.date + '</div>';
     html += '</div>';
     html += '<div class="acq-grade-area">';
-    if (canEdit || state.user.role === '管理職') {
+    if (canEdit || state.user.role === '管理職' || state.user.role === '店長') {
       ['A','B','C','D'].forEach(function(g) {
         html += '<button class="grade-btn ' + (rec.grade === g ? gradeColor[g] : '') + '" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',\'' + (rec.grade === g ? '' : g) + '\')">' + g + '</button>';
       });
