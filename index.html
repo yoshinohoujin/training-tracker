@@ -568,10 +568,10 @@ function renderOverview() {
     html += '</div>';
 
     // 獲得評価
-    if (state.acqItems && state.acqItems.length > 0) {
+    const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
+    if (acqList.length > 0) {
       html += '<div class="overview-acq"><div class="overview-acq-label">獲得評価</div>';
-      state.acqItems.forEach(function(item) {
-        const acqForTrainee = state.acqData[t.traineeId] || {};
+      acqList.forEach(function(item) {
         const rec = acqForTrainee[item.itemId] || { grade: '', date: '' };
         const gradeClass = rec.grade ? 'grade-' + rec.grade : 'grade-none';
         html += '<div class="overview-acq-row">';
@@ -601,14 +601,15 @@ function renderAcqDetail(canEdit) {
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：横で見ていた</span>';
   html += '</div>';
 
-  if (!state.acqItems || state.acqItems.length === 0) {
+  const acqItemsList = Array.isArray(state.acqItems) ? state.acqItems : [];
+  if (acqItemsList.length === 0) {
     return html + '<div class="loading">獲得項目が登録されていません</div>';
   }
 
   const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
 
   html += '<div class="acq-block">';
-  state.acqItems.forEach(function(item) {
+  acqItemsList.forEach(function(item) {
     const rec = getAcqRecord(traineeId, item.itemId);
     html += '<div class="acq-row">';
     html += '<div><span class="acq-item-name">' + item.itemName + '</span>';
