@@ -255,7 +255,8 @@ let state = {
 const NO_CACHE = ['saveProgress','login','getProgress','getAllProgress','getTrainees',
   'getStaffList','getCategories','addItem','updateItem','deleteItem','reorderItem',
   'addCategory','addStaff','updateStaff','deleteStaff','reorderCategory',
-  'saveItemOrder','saveCategoryOrder','setStaffEnabled'];
+  'saveItemOrder','saveCategoryOrder','setStaffEnabled',
+  'getAcqItems','getAcqProgress','getAllAcqProgress','saveAcqProgress'];
 const gasCache = {};
 
 function callGAS(func, params, _retry) {
