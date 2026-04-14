@@ -568,6 +568,7 @@ function renderOverview() {
     // 獲得評価
     const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
     if (acqList.length > 0) {
+      const acqForTrainee = state.acqData && state.acqData[t.traineeId] ? state.acqData[t.traineeId] : {};
       html += '<div class="overview-acq"><div class="overview-acq-label">獲得評価</div>';
       acqList.forEach(function(item) {
         const rec = acqForTrainee[item.itemId] || { grade: '', date: '' };
