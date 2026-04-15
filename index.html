@@ -130,6 +130,7 @@
   .career-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
   .career-sb { background: rgba(37,99,235,0.1); color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
   .career-au { background: rgba(220,38,38,0.1); color: var(--red); border: 1px solid rgba(220,38,38,0.2); }
+  .career-common { background: rgba(22,163,74,0.1); color: var(--green); border: 1px solid rgba(22,163,74,0.2); }
   .view-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
   .view-tab { padding: 8px 16px; border-radius: 7px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
   .view-tab.active { background: var(--accent); color: #fff; font-weight: 500; }
@@ -610,7 +611,7 @@ function renderAdminAcqItems() {
   const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
   if (acqList.length > 0) {
     acqList.forEach(function(item) {
-      const careerLabel = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">AU</span>' : '<span class="career-badge" style="background:var(--surface2);color:var(--text3);border:1px solid var(--border)">共通</span>';
+      const careerLabel = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">AU</span>' : '<span class="career-badge career-common">共通</span>';
       html += '<div class="admin-item-row" id="acq-item-' + item.itemId + '">';
       html += '<span class="admin-item-name">' + item.itemName + ' ' + careerLabel + '</span>';
       html += '<button class="admin-btn" onclick="startEditAcqItem(\'' + item.itemId + '\',\'' + item.itemName.replace(/'/g, "\\'") + '\',\'' + item.career + '\')">編集</button>';
@@ -697,7 +698,7 @@ function renderAdminItems() {
     if (isOpen) {
       html += '<div class="item-list" data-cat-id="' + cat.id + '">';
       cat.items.forEach(function(item) {
-        const careerLabel = item.career === 'SB' ? ' <span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? ' <span class="career-badge career-au">AU</span>' : item.career === '共通' ? ' <span class="career-badge" style="background:var(--surface2);color:var(--text3);border:1px solid var(--border)">共通</span>' : '';
+        const careerLabel = item.career === 'SB' ? ' <span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? ' <span class="career-badge career-au">AU</span>' : ' <span class="career-badge career-common">共通</span>';
         html += '<div class="admin-item-row" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" draggable="true">';
         html += '<span class="drag-handle">⠿</span><span class="admin-item-name" id="item-name-' + item.id + '">';
         html += item.name + careerLabel;
