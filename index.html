@@ -419,7 +419,7 @@ function renderMain() {
     html += '<button class="detail-tab ' + (state.detailTab === 'training' ? 'active' : '') + '" id="tab-training">指導</button>';
     html += '<button class="detail-tab ' + (state.detailTab === 'acq' ? 'active' : '') + '" id="tab-acq">獲得</button>';
     html += '</div>';
-    if (state.detailTab === 'training') { html += renderDetail(canEdit); } else { html += renderAcqDetail(canEdit || isAdmin); }
+    if (state.detailTab === 'training') { html += renderDetail(canEdit); } else { html += renderAcqDetail(canEdit); }
   }
   document.getElementById('main').innerHTML = html;
   const tabT = document.getElementById('tab-training');
@@ -451,10 +451,12 @@ function renderOverview() {
       const acqForTrainee = (state.acqData && state.acqData[t.traineeId]) ? state.acqData[t.traineeId] : {};
       html += '<div class="overview-acq"><div class="overview-acq-label">獲得評価</div>';
       acqList.forEach(function(item) {
-        const rec = acqForTrainee[item.itemId] || { grade: '', date: '' };
-        const gradeClass = rec.grade ? 'grade-' + rec.grade : 'grade-none';
+        const rec = acqForTrainee[item.itemId] || { grade1:'', grade2:'', grade3:'' };
+        // 最新の評価（grade3→grade2→grade1の順で最初に値があるもの）
+        const latestGrade = rec.grade3 || rec.grade2 || rec.grade1 || '';
+        const gradeClass = latestGrade ? 'grade-' + latestGrade : 'grade-none';
         html += '<div class="overview-acq-row"><span class="overview-acq-name">' + item.itemName + '</span>';
-        html += '<span class="overview-acq-grade ' + gradeClass + '">' + (rec.grade || '—') + '</span></div>';
+        html += '<span class="overview-acq-grade ' + gradeClass + '">' + (latestGrade || '—') + '</span></div>';
       });
       html += '</div>';
     }
