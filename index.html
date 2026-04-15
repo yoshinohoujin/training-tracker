@@ -1054,7 +1054,8 @@ function toggleCategory(id) { state.openCategories.has(id) ? state.openCategorie
 function setView(v) {
   if (state.view === 'admin' && v !== 'admin') {
     state.view = v;
-    state.categories = []; state.trainees = []; state.data = {}; state.openCategories = new Set();
+    state.categories = []; state.trainees = []; state.data = {};
+    state.openCategories = new Set();
     state.acqItems = []; state.acqData = {};
     document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>読み込み中...</div>';
     renderSidebar(); initApp(); return;
