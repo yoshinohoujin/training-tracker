@@ -434,7 +434,7 @@ function renderOverview() {
     const total = getTotalProgress(t.traineeId);
     const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
     const trainerNames = getTrainerNames(t.traineeId);
-    const careerLabel = t.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : t.career === 'AU' ? '<span class="career-badge career-au">AU</span>' : '';
+    const careerLabel = t.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : t.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '';
     html += '<div class="overview-card">';
     html += '<div class="overview-card-name">' + t.name + (isAdmin && careerLabel ? careerLabel : '') + '</div>';
     if (trainerNames) html += '<div class="overview-card-sub">担当：' + trainerNames + '</div>';
@@ -612,7 +612,7 @@ function renderAdminAcqItems() {
   const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
   if (acqList.length > 0) {
     acqList.forEach(function(item) {
-      const careerLabel = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">AU</span>' : '<span class="career-badge career-common">共通</span>';
+      const careerLabel = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '<span class="career-badge career-common">共通</span>';
       html += '<div class="admin-item-row" id="acq-item-' + item.itemId + '">';
       html += '<span class="admin-item-name">' + item.itemName + ' ' + careerLabel + '</span>';
       html += '<button class="admin-btn" onclick="startEditAcqItem(\'' + item.itemId + '\',\'' + item.itemName.replace(/'/g, "\\'") + '\',\'' + item.career + '\')">編集</button>';
@@ -699,7 +699,7 @@ function renderAdminItems() {
     if (isOpen) {
       html += '<div class="item-list" data-cat-id="' + cat.id + '">';
       cat.items.forEach(function(item) {
-        const careerLabel = item.career === 'SB' ? ' <span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? ' <span class="career-badge career-au">AU</span>' : ' <span class="career-badge career-common">共通</span>';
+        const careerLabel = item.career === 'SB' ? ' <span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? ' <span class="career-badge career-au">au</span>' : ' <span class="career-badge career-common">共通</span>';
         html += '<div class="admin-item-row" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" draggable="true">';
         html += '<span class="drag-handle">⠿</span><span class="admin-item-name" id="item-name-' + item.id + '">';
         html += item.name + careerLabel;
@@ -795,7 +795,7 @@ function renderAdminStaff() {
   html+='<div style="overflow-x:auto"><table class="staff-table"><thead><tr><th>キャリア</th><th>種別</th><th>社員番号</th><th>氏名</th><th>担当新人ID</th><th>操作</th></tr></thead><tbody>';
   sortedStaff.forEach(function(s){
     const isActive=s.active===true,isEnabled=s.enabled!==false;
-    const cl=s.career==='SB'?'<span class="career-badge career-sb">SB</span>':s.career==='AU'?'<span class="career-badge career-au">AU</span>':'<span style="font-size:0.7rem;color:var(--text3)">—</span>';
+    const cl=s.career==='SB'?'<span class="career-badge career-sb">SB</span>':s.career==='AU'?'<span class="career-badge career-au">au</span>':'<span style="font-size:0.7rem;color:var(--text3)">—</span>';
     html+='<tr style="'+((!isEnabled)?'opacity:0.5':'')+'"><td>'+cl+'</td>';
     html+='<td><span style="'+(roleColors[s.role]||'')+';border-radius:10px;padding:2px 8px;font-size:0.7rem;font-weight:500;white-space:nowrap;">'+s.role+'</span></td>';
     html+='<td style="color:var(--text2);font-size:0.8rem">'+s.staffId+'</td>';
