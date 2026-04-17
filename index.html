@@ -573,16 +573,27 @@ function renderOverview() {
 }
 
 function renderShopDetail(canEdit) {
+  function renderShopDetail(canEdit) {
   if (!state.currentTrainee) return '<div class="loading">新スタッフが登録されていません</div>';
   const traineeId = state.currentTrainee;
   const traineeObj = state.trainees.find(function(t) { return String(t.traineeId) === String(traineeId); });
   const traineeName = traineeObj ? traineeObj.name : '';
+  const traineeCareer = traineeObj ? traineeObj.career : '';
   let html = '<div class="section-header"><div class="section-title">' + traineeName + ' の店舗業務</div></div>';
   if (!state.shopCategories || state.shopCategories.length === 0) {
     return html + '<div class="loading">店舗業務項目が登録されていません</div>';
   }
+  // スタッフのキャリアでフィルタ
+  const filteredShopCats = state.shopCategories.map(function(cat) {
+    return {
+      id: cat.id, name: cat.name,
+      items: cat.items.filter(function(item) {
+        return !item.career || item.career === '共通' || item.career === traineeCareer;
+      })
+    };
+  }).filter(function(cat) { return cat.items.length > 0; });
   if (!state.openShopCategories) state.openShopCategories = new Set();
-  state.shopCategories.forEach(function(cat) {
+  filteredShopCats.forEach(function(cat) {
     const isOpen = state.openShopCategories.has(cat.id);
     const p = getShopCategoryProgress(traineeId, cat.id);
     const cpct = p.total ? Math.round(p.done / p.total * 100) : 0;
