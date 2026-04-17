@@ -539,8 +539,6 @@ function renderOverview() {
   const isAdmin = state.user.role === '管理職';
   let html = '<div class="overview-grid">';
   state.trainees.forEach(function(t) {
-    const total = getTotalProgress(t.traineeId);
-    const pct = total.total ? Math.round(total.taught / total.total * 100) : 0;
     const trainerNames = getTrainerNames(t.traineeId);
     const careerLabel = t.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : t.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '';
     html += '<div class="overview-card">';
