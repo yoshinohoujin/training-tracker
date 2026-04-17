@@ -546,9 +546,11 @@ function renderOverview() {
     html += '<div class="overview-card">';
     html += '<div class="overview-card-name">' + t.name + (isAdmin && careerLabel ? careerLabel : '') + '</div>';
     html += '<div class="overview-card-sub">担当：' + (trainerNames || '—') + '</div>';
-    html += '<div class="overview-section-label">指導評価</div>';
-    html += '<div class="overview-sections">';
     const cats = getCategoriesForTrainee(t.traineeId);
+    const total = getTotalProgress(t.traineeId);
+    const totalPct = total.total ? Math.round(total.taught / total.total * 100) : 0;
+    html += '<div class="overview-section-label">指導評価 <span style="font-weight:700;color:var(--accent)">' + totalPct + '%</span> <span style="color:var(--text3);font-size:0.65rem;">(' + total.taught + '/' + total.total + ')</span></div>';
+    html += '<div class="overview-sections">';
     cats.forEach(function(cat) {
       const p = getCategoryProgressForTrainee(t.traineeId, cat);
       const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
