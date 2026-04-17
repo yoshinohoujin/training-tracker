@@ -470,12 +470,13 @@ function getTotalProgress(traineeId) {
   return { taught, total };
 }
 
-function getShopCategoryProgress(traineeId, catId) {
-  const cat = state.shopCategories.find(function(c) { return c.id === catId; });
+function getShopCategoryProgress(traineeId, catId, filteredCats) {
+  const cats = filteredCats || state.shopCategories;
+  const cat = cats.find(function(c) { return c.id === catId; });
   if (!cat) return { done: 0, total: 0 };
   let done = 0;
   cat.items.forEach(function(item) { if (getShopRecord(traineeId, item.id).date) done++; });
-  return { done, total: cat.items.length };
+  return { done: done, total: cat.items.length };
 }
 
 function render() { renderSidebar(); renderMain(); }
@@ -594,7 +595,7 @@ function renderShopDetail(canEdit) {
   if (!state.openShopCategories) state.openShopCategories = new Set();
   filteredShopCats.forEach(function(cat) {
     const isOpen = state.openShopCategories.has(cat.id);
-    const p = getShopCategoryProgress(traineeId, cat.id);
+    const p = getShopCategoryProgress(traineeId, cat.id, filteredShopCats);
     const cpct = p.total ? Math.round(p.done / p.total * 100) : 0;
     html += '<div class="category-block"><div class="category-head" onclick="toggleShopCategory(\'' + cat.id + '\')">';
     html += '<div class="category-head-left"><span class="category-chevron ' + (isOpen ? 'open' : '') + '">▼</span>';
