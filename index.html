@@ -555,7 +555,10 @@ function renderOverview() {
       html += '<div class="overview-row"><span class="overview-name">' + cat.name + '</span><div class="overview-bar"><div class="overview-bar-fill" style="width:' + cpct + '%"></div></div><span class="overview-pct">' + cpct + '%</span></div>';
     });
     html += '</div>';
-    const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
+    const acqListAll = Array.isArray(state.acqItems) ? state.acqItems : [];
+    const acqList = acqListAll.filter(function(item) {
+      return !item.career || item.career === '共通' || item.career === t.career;
+    });
     if (acqList.length > 0) {
       const acqForTrainee = (state.acqData && state.acqData[t.traineeId]) ? state.acqData[t.traineeId] : {};
       html += '<div class="overview-acq"><div class="overview-acq-label">獲得評価</div>';
