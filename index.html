@@ -660,12 +660,36 @@ function renderAcqDetail(canEdit) {
   const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
   if (acqList.length === 0) return html + '<div class="loading">獲得項目が登録されていません</div>';
   const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
+  // PC：テーブル形式、SP：縦並び
   html += '<div class="acq-block">';
+  // PCヘッダー
+  html += '<div class="item-row-header pc-only" style="grid-template-columns:1fr 1fr 1fr 1fr;">';
+  html += '<div>項目</div><div>1回目</div><div>2回目</div><div>3回目</div></div>';
   acqList.forEach(function(item) {
     const rec = getAcqRecord(traineeId, item.itemId);
-    html += '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">';
+    // PC：グリッド1行
+    html += '<div class="pc-only" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px;">';
+    html += '<div style="font-size:0.9rem;font-weight:500;">' + item.itemName + '</div>';
+    [1,2,3].forEach(function(round) {
+      const grade = rec['grade' + round] || '';
+      const date = rec['date' + round] || '';
+      html += '<div style="display:flex;align-items:center;gap:6px;">';
+      html += '<span style="font-size:0.72rem;color:var(--text3);">' + (date || '—') + '</span>';
+      if (canEdit) {
+        ['A','B','C','D'].forEach(function(g) {
+          html += '<button class="grade-btn ' + (grade === g ? gradeColor[g] : '') + '" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',' + round + ',\'' + (grade === g ? '' : g) + '\')">' + g + '</button>';
+        });
+      } else {
+        const gc = grade ? 'grade-' + grade : 'grade-none';
+        html += '<span class="acq-grade-val ' + gc + '">' + (grade || '—') + '</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    // SP：縦並び（従来通り）
+    html += '<div class="sp-only" style="padding:12px 16px;border-bottom:1px solid var(--border);">';
     html += '<div style="font-size:0.9rem;font-weight:500;margin-bottom:10px">' + item.itemName + '</div>';
-    [1, 2, 3].forEach(function(round) {
+    [1,2,3].forEach(function(round) {
       const grade = rec['grade' + round] || '';
       const date = rec['date' + round] || '';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
