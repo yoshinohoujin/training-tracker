@@ -545,7 +545,7 @@ function renderOverview() {
     const careerLabel = t.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : t.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '';
     html += '<div class="overview-card">';
     html += '<div class="overview-card-name">' + t.name + (isAdmin && careerLabel ? careerLabel : '') + '</div>';
-    if (trainerNames) html += '<div class="overview-card-sub">担当：' + trainerNames + '</div>';
+    html += '<div class="overview-card-sub">担当：' + (trainerNames || '—') + '</div>';
     html += '<div class="overview-section-label">指導評価</div>';
     html += '<div class="overview-sections">';
     const cats = getCategoriesForTrainee(t.traineeId);
