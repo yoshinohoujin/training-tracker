@@ -573,7 +573,6 @@ function renderOverview() {
 }
 
 function renderShopDetail(canEdit) {
-  function renderShopDetail(canEdit) {
   if (!state.currentTrainee) return '<div class="loading">新スタッフが登録されていません</div>';
   const traineeId = state.currentTrainee;
   const traineeObj = state.trainees.find(function(t) { return String(t.traineeId) === String(traineeId); });
