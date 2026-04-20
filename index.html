@@ -235,7 +235,7 @@
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxJWStPk1Q-I8JxdbibKfsFFLYtF_lgXmoCBQprDGfMzewacbKCI-Dneq3OCyX8WZz8UA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw4Y3QLRTjsK3r017xYYfsPihQiejfBIaUiDZYuXTEnn02i6n01IWxyEWZoDMwMkrPhCw/exec';
 
 let state = {
   user: null, currentTrainee: null, currentCategory: null,
@@ -1165,7 +1165,7 @@ function initDrag() {
       const ti2=tcat.items.findIndex(function(i){return i.id===ti;});
       tcat.items.splice(ib?ti2:ti2+1,0,drag);
       document.getElementById('main').innerHTML=renderAdmin(); initDrag();
-      if(dc===tc)callGAS('saveItemOrder',{catId:tc,orderedIds:tcat.items.map(function(i){return i.id;})}).catch(function(e){showToast('順番の保存失敗: '+e.message,'error');});
+      if(dc===tc)callGAS('saveShopItemOrder',{catId:tc,orderedIds:tcat.items.map(function(i){return i.id;})}).catch(function(e){showToast('順番の保存失敗: '+e.message,'error');});
     });
   });
   document.querySelectorAll('.shop-cat-drag-handle').forEach(function(handle) {
@@ -1190,7 +1190,7 @@ function initDrag() {
       const ni=state.shopCategories.findIndex(function(c){return c.id===tc;});
       state.shopCategories.splice(ib?ni:ni+1,0,drag);
       document.getElementById('main').innerHTML=renderAdmin(); initDrag();
-      callGAS('saveCategoryOrder',{type:'shop',orderedIds:state.shopCategories.map(function(c){return c.id;})}).catch(function(e){showToast('カテゴリ順の保存失敗: '+e.message,'error');});
+      callGAS('saveShopCategoryOrder',{orderedIds:state.shopCategories.map(function(c){return c.id;})}).catch(function(e){showToast('カテゴリ順の保存失敗: '+e.message,'error');});
     });
   });
   const scl=document.getElementById('shop-cat-list');
@@ -1212,7 +1212,7 @@ function initDrag() {
       const ti2=state.acqItems.findIndex(function(i){return i.itemId===ti;});
       state.acqItems.splice(ib?ti2:ti2+1,0,drag);
       document.getElementById('main').innerHTML=renderAdmin(); initDrag();
-      callGAS('saveItemOrder',{catId:'acq',orderedIds:state.acqItems.map(function(i){return i.itemId;})}).catch(function(e){showToast('順番の保存失敗: '+e.message,'error');});
+      callGAS('saveAcqItemOrder',{orderedIds:state.acqItems.map(function(i){return i.itemId;})}).catch(function(e){showToast('順番の保存失敗: '+e.message,'error');});
     });
   });
 }
