@@ -304,7 +304,7 @@ document.getElementById('inputPassword').addEventListener('keydown', function(e)
 
 function doLogout() {
   localStorage.removeItem('loginUser');
-  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', detailTab: 'training', openCategories: new Set(), adminView: 'items', staffList: null, adminOpenCats: null, acqItems: [], acqData: {}, shopCategories: [], shopData: {}, openShopCategories: new Set() };
+  state = { user: null, currentTrainee: null, currentCategory: null, categories: [], trainees: [], data: {}, view: 'detail', detailTab: 'training', openCategories: new Set(), adminView: 'items', staffList: null, adminOpenCats: null, adminOpenShopCats: null, acqItems: [], acqData: {}, shopCategories: [], shopData: {}, openShopCategories: new Set() };
   document.getElementById('appScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('inputStaffId').value = '';
@@ -832,32 +832,48 @@ function renderAdmin() {
 }
 
 function renderAdminShopItems() {
-  let html = '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">店舗業務項目一覧</span></div>';
+  if (!state.adminOpenShopCats) state.adminOpenShopCats = new Set();
+  let html = '<div id="shop-cat-list">';
   const shopList = Array.isArray(state.shopCategories) ? state.shopCategories : [];
-  html += '<div id="shop-cat-list">';
   if (shopList.length > 0) {
     shopList.forEach(function(cat) {
-      html += '<div class="admin-section" data-shop-cat-id="' + cat.id + '" style="margin:0;border-radius:0;box-shadow:none;border:none;border-bottom:1px solid var(--border);">';
-      html += '<div style="padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:0.8rem;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:8px;">';
-      html += '<span class="drag-handle shop-cat-drag-handle" style="cursor:grab;">⠿</span>📁 ' + cat.name + '</div>';
-      cat.items.forEach(function(item) {
-        const cl = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '<span class="career-badge career-common">共通</span>';
-        html += '<div class="admin-item-row shop-item-row" draggable="true" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" id="shop-item-' + item.id + '">';
-        html += '<span class="drag-handle">⠿</span>';
-        html += '<span class="admin-item-name">' + item.name + ' ' + cl;
-        if (item.note) html += '<span style="display:block;font-size:0.72rem;color:var(--text3)">' + item.note + '</span>';
-        html += '</span>';
-        html += '<button class="admin-btn" onclick="startEditShopItem(\'' + item.id + '\',\'' + cat.name.replace(/'/g,"\\'") + '\',\'' + item.name.replace(/'/g,"\\'") + '\',\'' + (item.note||'').replace(/'/g,"\\'") + '\',\'' + item.career + '\')">編集</button>';
-        html += '<button class="admin-btn danger" onclick="doDeleteShopItem(\'' + item.id + '\',\'' + item.name.replace(/'/g,"\\'") + '\')">削除</button>';
+      const isOpen = state.adminOpenShopCats.has(cat.id);
+      html += '<div class="admin-section" data-shop-cat-id="' + cat.id + '">';
+      html += '<div class="admin-section-head" style="cursor:pointer;" onclick="toggleAdminShopCat(\'' + cat.id + '\')">';
+      html += '<span class="admin-section-title"><span class="shop-cat-drag-handle drag-handle" onclick="event.stopPropagation()">⠿</span> ';
+      html += '<span style="font-size:0.7rem;margin-right:4px;display:inline-block;transition:transform 0.2s;transform:' + (isOpen ? 'rotate(0deg)' : 'rotate(-90deg)') + '">▼</span>';
+      html += '📁 ' + cat.name + '（' + cat.items.length + '項目）</span></div>';
+      if (isOpen) {
+        html += '<div class="shop-item-list" data-cat-id="' + cat.id + '">';
+        cat.items.forEach(function(item) {
+          const cl = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '<span class="career-badge career-common">共通</span>';
+          html += '<div class="admin-item-row shop-item-row" draggable="true" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" id="shop-item-' + item.id + '">';
+          html += '<span class="drag-handle">⠿</span>';
+          html += '<span class="admin-item-name">' + item.name + ' ' + cl;
+          if (item.note) html += '<span style="display:block;font-size:0.72rem;color:var(--text3)">' + item.note + '</span>';
+          html += '</span>';
+          html += '<button class="admin-btn" onclick="startEditShopItem(\'' + item.id + '\',\'' + cat.name.replace(/'/g,"\\'") + '\',\'' + item.name.replace(/'/g,"\\'") + '\',\'' + (item.note||'').replace(/'/g,"\\'") + '\',\'' + item.career + '\')">編集</button>';
+          html += '<button class="admin-btn danger" onclick="doDeleteShopItem(\'' + item.id + '\',\'' + item.name.replace(/'/g,"\\'") + '\')">削除</button>';
+          html += '</div>';
+        });
         html += '</div>';
-      });
+        html += '<div class="admin-form" style="flex-direction:column;gap:6px;">';
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+        html += '<input class="admin-input" id="newShopItem-' + cat.id + '" placeholder="新しい項目名" style="flex:1">';
+        html += '<input class="admin-input" id="newShopItemNote-' + cat.id + '" placeholder="注釈（任意）" style="flex:1">';
+        html += '</div>';
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+        html += '<select class="admin-select" id="newShopItemCareer-' + cat.id + '"><option value="共通">共通</option><option value="SB">SB</option><option value="AU">au</option></select>';
+        html += '<button class="admin-btn primary" onclick="doAddShopItemInCat(\'' + cat.id + '\',\'' + cat.name.replace(/'/g,"\\'") + '\')">追加</button>';
+        html += '</div></div>';
+      }
       html += '</div>';
     });
   } else {
     html += '<div style="padding:16px;color:var(--text3);font-size:0.85rem">店舗業務項目がありません</div>';
   }
-  html += '</div></div>';
-  html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">店舗業務項目追加</span></div>';
+  html += '</div>';
+  html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">新規カテゴリ・項目追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:8px;">';
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
   html += '<input class="admin-input" id="newShopCategory" placeholder="カテゴリ名（例：開店業務）" style="flex:1">';
@@ -869,6 +885,31 @@ function renderAdminShopItems() {
   html += '<button class="admin-btn primary" onclick="doAddShopItem()">追加</button>';
   html += '</div></div></div>';
   return html;
+}
+
+function toggleAdminShopCat(catId) {
+  if (!state.adminOpenShopCats) state.adminOpenShopCats = new Set();
+  state.adminOpenShopCats.has(catId) ? state.adminOpenShopCats.delete(catId) : state.adminOpenShopCats.add(catId);
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
+}
+
+function doAddShopItemInCat(catId, catName) {
+  const inp = document.getElementById('newShopItem-' + catId);
+  const note = document.getElementById('newShopItemNote-' + catId);
+  const career = document.getElementById('newShopItemCareer-' + catId);
+  const nameVal = inp ? inp.value.trim() : '';
+  const noteVal = note ? note.value.trim() : '';
+  const careerVal = career ? career.value : '共通';
+  if (!nameVal) { showToast('項目名は必須です', 'error'); return; }
+  const tempId = 'shoptemp_' + Date.now();
+  let catObj = state.shopCategories.find(function(c) { return c.id === catId; });
+  if (!catObj) { catObj = { id: catId, name: catName, items: [] }; state.shopCategories.push(catObj); }
+  catObj.items.push({ id: tempId, name: nameVal, note: noteVal, career: careerVal });
+  document.getElementById('main').innerHTML = renderAdmin(); initDrag();
+  showToast('追加しました', 'success');
+  callGAS('addShopItem', { category: catName, itemName: nameVal, note: noteVal, career: careerVal }).then(function(r) {
+    if (r && r.itemId) { state.shopCategories.forEach(function(c) { const i = c.items.find(function(i) { return i.id === tempId; }); if (i) i.id = r.itemId; }); }
+  }).catch(function(e) { showToast('保存失敗: ' + e.message, 'error'); });
 }
   
 function startEditShopItem(itemId, currentCat, currentName, currentNote, currentCareer) {
