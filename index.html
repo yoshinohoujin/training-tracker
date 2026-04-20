@@ -564,8 +564,8 @@ function renderOverview() {
       const cpct = p.total ? Math.round(p.taught / p.total * 100) : 0;
       html += '<div style="display:flex;flex-direction:column;gap:2px;">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-      html += '<span style="font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65px;">' + cat.name + '</span>';
-      html += '<span style="font-size:10px;color:var(--text3);">' + cpct + '%</span></div>';
+      html += '<span style="font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65px;">' + cat.name + '</span>';
+      html += '<span style="font-size:10px;color:var(--text2);">' + cpct + '%</span></div>';
       html += '<div style="height:3px;background:var(--surface2);border-radius:2px;"><div style="height:3px;border-radius:2px;background:var(--accent);width:' + cpct + '%"></div></div>';
       html += '</div>';
     });
