@@ -834,12 +834,16 @@ function renderAdmin() {
 function renderAdminShopItems() {
   let html = '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">店舗業務項目一覧</span></div>';
   const shopList = Array.isArray(state.shopCategories) ? state.shopCategories : [];
+  html += '<div id="shop-cat-list">';
   if (shopList.length > 0) {
     shopList.forEach(function(cat) {
-      html += '<div style="padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:0.8rem;font-weight:600;color:var(--text2)">📁 ' + cat.name + '</div>';
+      html += '<div class="admin-section" data-shop-cat-id="' + cat.id + '" style="margin:0;border-radius:0;box-shadow:none;border:none;border-bottom:1px solid var(--border);">';
+      html += '<div style="padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:0.8rem;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:8px;">';
+      html += '<span class="drag-handle shop-cat-drag-handle" style="cursor:grab;">⠿</span>📁 ' + cat.name + '</div>';
       cat.items.forEach(function(item) {
         const cl = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '<span class="career-badge career-common">共通</span>';
-        html += '<div class="admin-item-row" id="shop-item-' + item.id + '">';
+        html += '<div class="admin-item-row shop-item-row" draggable="true" data-item-id="' + item.id + '" data-cat-id="' + cat.id + '" id="shop-item-' + item.id + '">';
+        html += '<span class="drag-handle">⠿</span>';
         html += '<span class="admin-item-name">' + item.name + ' ' + cl;
         if (item.note) html += '<span style="display:block;font-size:0.72rem;color:var(--text3)">' + item.note + '</span>';
         html += '</span>';
@@ -847,11 +851,12 @@ function renderAdminShopItems() {
         html += '<button class="admin-btn danger" onclick="doDeleteShopItem(\'' + item.id + '\',\'' + item.name.replace(/'/g,"\\'") + '\')">削除</button>';
         html += '</div>';
       });
+      html += '</div>';
     });
   } else {
     html += '<div style="padding:16px;color:var(--text3);font-size:0.85rem">店舗業務項目がありません</div>';
   }
-  html += '</div>';
+  html += '</div></div>';
   html += '<div class="admin-section"><div class="admin-section-head"><span class="admin-section-title">店舗業務項目追加</span></div>';
   html += '<div class="admin-form" style="flex-direction:column;gap:8px;">';
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
@@ -865,7 +870,7 @@ function renderAdminShopItems() {
   html += '</div></div></div>';
   return html;
 }
-
+  
 function startEditShopItem(itemId, currentCat, currentName, currentNote, currentCareer) {
   const row = document.getElementById('shop-item-' + itemId);
   if (!row) return;
@@ -936,7 +941,8 @@ function renderAdminAcqItems() {
   if (acqList.length > 0) {
     acqList.forEach(function(item) {
       const cl = item.career === 'SB' ? '<span class="career-badge career-sb">SB</span>' : item.career === 'AU' ? '<span class="career-badge career-au">au</span>' : '<span class="career-badge career-common">共通</span>';
-      html += '<div class="admin-item-row" id="acq-item-' + item.itemId + '">';
+      html += '<div class="admin-item-row acq-item-row" draggable="true" data-item-id="' + item.itemId + '" id="acq-item-' + item.itemId + '">';
+      html += '<span class="drag-handle">⠿</span>';
       html += '<span class="admin-item-name">' + item.itemName + ' ' + cl + '</span>';
       html += '<button class="admin-btn" onclick="startEditAcqItem(\'' + item.itemId + '\',\'' + item.itemName.replace(/'/g,"\\'") + '\',\'' + item.career + '\')">編集</button>';
       html += '<button class="admin-btn danger" onclick="doDeleteAcqItem(\'' + item.itemId + '\',\'' + item.itemName.replace(/'/g,"\\'") + '\')">削除</button>';
@@ -955,7 +961,7 @@ function renderAdminAcqItems() {
   html += '</div></div></div>';
   return html;
 }
-
+  
 function startEditAcqItem(itemId, currentName, currentCareer) {
   const row = document.getElementById('acq-item-' + itemId);
   if (!row) return;
@@ -1100,6 +1106,74 @@ function initDrag() {
   });
   const cl=document.getElementById('cat-list');
   if(cl){cl.addEventListener('dragleave',function(e){if(!cl.contains(e.relatedTarget)){document.querySelectorAll('.cat-drop-line').forEach(function(el){el.remove();});}});}
+  // 店舗業務ドラッグ
+  document.querySelectorAll('.shop-item-row[draggable]').forEach(function(row) {
+    row.addEventListener('dragstart', function(e) { e.dataTransfer.setData('type','shopItem'); e.dataTransfer.setData('itemId',row.dataset.itemId); e.dataTransfer.setData('catId',row.dataset.catId); row.classList.add('dragging'); });
+    row.addEventListener('dragend', function() { row.classList.remove('dragging'); document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el){el.classList.remove('drag-over-top','drag-over-bottom');}); });
+    row.addEventListener('dragover', function(e) { e.preventDefault(); document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el){el.classList.remove('drag-over-top','drag-over-bottom');}); const rect=row.getBoundingClientRect(); if(e.clientY<rect.top+rect.height/2){row.classList.add('drag-over-top');}else{row.classList.add('drag-over-bottom');} });
+    row.addEventListener('dragleave', function() { row.classList.remove('drag-over-top','drag-over-bottom'); });
+    row.addEventListener('drop', function(e) {
+      e.preventDefault(); row.classList.remove('drag-over-top','drag-over-bottom');
+      const di=e.dataTransfer.getData('itemId'),dc=e.dataTransfer.getData('catId'),ti=row.dataset.itemId,tc=row.dataset.catId;
+      if(di===ti)return;
+      const ib=e.clientY<row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;
+      const sc=state.shopCategories.find(function(c){return c.id===dc;}),tcat=state.shopCategories.find(function(c){return c.id===tc;});
+      if(!sc||!tcat)return;
+      const drag=sc.items.find(function(i){return i.id===di;}); if(!drag)return;
+      sc.items=sc.items.filter(function(i){return i.id!==di;});
+      const ti2=tcat.items.findIndex(function(i){return i.id===ti;});
+      tcat.items.splice(ib?ti2:ti2+1,0,drag);
+      document.getElementById('main').innerHTML=renderAdmin(); initDrag();
+      if(dc===tc)callGAS('saveItemOrder',{catId:tc,orderedIds:tcat.items.map(function(i){return i.id;})}).catch(function(e){showToast('順番の保存失敗: '+e.message,'error');});
+    });
+  });
+  document.querySelectorAll('.shop-cat-drag-handle').forEach(function(handle) {
+    const sec=handle.closest('.admin-section[data-shop-cat-id]'); if(!sec)return;
+    handle.setAttribute('draggable','true');
+    handle.addEventListener('dragstart',function(e){e.dataTransfer.setData('type','shopCategory');e.dataTransfer.setData('catId',sec.dataset.shopCatId);sec.classList.add('dragging');e.stopPropagation();});
+    handle.addEventListener('dragend',function(){sec.classList.remove('dragging');document.querySelectorAll('.shop-cat-drop-line').forEach(function(el){el.remove();});});
+  });
+  document.querySelectorAll('#shop-cat-list > .admin-section').forEach(function(sec) {
+    sec.addEventListener('dragover',function(e){
+      e.preventDefault(); document.querySelectorAll('.shop-cat-drop-line').forEach(function(el){el.remove();});
+      const rect=sec.getBoundingClientRect(),line=document.createElement('div');
+      line.className='shop-cat-drop-line'; line.style.cssText='height:3px;background:var(--accent);margin:0 8px;border-radius:2px;';
+      if(e.clientY<rect.top+rect.height/2){sec.parentNode.insertBefore(line,sec);}else{sec.parentNode.insertBefore(line,sec.nextSibling);}
+    });
+    sec.addEventListener('drop',function(e){
+      e.preventDefault(); e.stopPropagation(); document.querySelectorAll('.shop-cat-drop-line').forEach(function(el){el.remove();});
+      const dc=e.dataTransfer.getData('catId'),tc=sec.dataset.shopCatId; if(!dc||dc===tc)return;
+      const ib=e.clientY<sec.getBoundingClientRect().top+sec.getBoundingClientRect().height/2;
+      const di=state.shopCategories.findIndex(function(c){return c.id===dc;}); if(di===-1)return;
+      const drag=state.shopCategories.splice(di,1)[0];
+      const ni=state.shopCategories.findIndex(function(c){return c.id===tc;});
+      state.shopCategories.splice(ib?ni:ni+1,0,drag);
+      document.getElementById('main').innerHTML=renderAdmin(); initDrag();
+      callGAS('saveCategoryOrder',{type:'shop',orderedIds:state.shopCategories.map(function(c){return c.id;})}).catch(function(e){showToast('カテゴリ順の保存失敗: '+e.message,'error');});
+    });
+  });
+  const scl=document.getElementById('shop-cat-list');
+  if(scl){scl.addEventListener('dragleave',function(e){if(!scl.contains(e.relatedTarget)){document.querySelectorAll('.shop-cat-drop-line').forEach(function(el){el.remove();});}});}
+
+  // 獲得項目ドラッグ
+  document.querySelectorAll('.acq-item-row[draggable]').forEach(function(row) {
+    row.addEventListener('dragstart', function(e) { e.dataTransfer.setData('type','acqItem'); e.dataTransfer.setData('itemId',row.dataset.itemId); row.classList.add('dragging'); });
+    row.addEventListener('dragend', function() { row.classList.remove('dragging'); document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el){el.classList.remove('drag-over-top','drag-over-bottom');}); });
+    row.addEventListener('dragover', function(e) { e.preventDefault(); document.querySelectorAll('.drag-over-top,.drag-over-bottom').forEach(function(el){el.classList.remove('drag-over-top','drag-over-bottom');}); const rect=row.getBoundingClientRect(); if(e.clientY<rect.top+rect.height/2){row.classList.add('drag-over-top');}else{row.classList.add('drag-over-bottom');} });
+    row.addEventListener('dragleave', function() { row.classList.remove('drag-over-top','drag-over-bottom'); });
+    row.addEventListener('drop', function(e) {
+      e.preventDefault(); row.classList.remove('drag-over-top','drag-over-bottom');
+      const di=e.dataTransfer.getData('itemId'),ti=row.dataset.itemId;
+      if(di===ti)return;
+      const ib=e.clientY<row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;
+      const drag=state.acqItems.find(function(i){return i.itemId===di;}); if(!drag)return;
+      state.acqItems=state.acqItems.filter(function(i){return i.itemId!==di;});
+      const ti2=state.acqItems.findIndex(function(i){return i.itemId===ti;});
+      state.acqItems.splice(ib?ti2:ti2+1,0,drag);
+      document.getElementById('main').innerHTML=renderAdmin(); initDrag();
+      callGAS('saveItemOrder',{catId:'acq',orderedIds:state.acqItems.map(function(i){return i.itemId;})}).catch(function(e){showToast('順番の保存失敗: '+e.message,'error');});
+    });
+  });
 }
 
 function saveItemOrder(catId) {
