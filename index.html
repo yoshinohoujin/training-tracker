@@ -1216,7 +1216,7 @@ function renderAdminStaff() {
   return html;
 }
 
-function setAdminView(v){state.adminView=v;state.staffList=null;document.getElementById('main').innerHTML=renderAdmin();if(v==='items')initDrag();}
+function setAdminView(v){state.adminView=v;state.staffList=null;document.getElementById('main').innerHTML=renderAdmin();if(v==='items'||v==='shopItems'||v==='acqItems')initDrag();}
 function updateTraineeIdHint(){const r=document.getElementById('newStaffRole').value,h=document.getElementById('traineeIdHint'),i=document.getElementById('newStaffTraineeId');if(!h||!i)return;if(r==='新スタッフ'){h.textContent='新スタッフ本人のID';i.placeholder='新人ID';}else if(r==='トレーナー'||r==='店長'){h.textContent='担当する新スタッフのID';i.placeholder='担当新人ID';}else{h.textContent='不要な場合は空白のままでOK';i.placeholder='担当新人ID（任意）';}}
 function doAddCategory(){const n=document.getElementById('newCategoryName').value.trim();if(!n)return;state.categories.push({id:n,name:n,items:[]});document.getElementById('main').innerHTML=renderAdmin();initDrag();showToast('カテゴリを追加しました','success');callGAS('addCategory',{categoryName:n}).catch(function(e){showToast('保存失敗: '+e.message,'error');});}
 
