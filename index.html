@@ -384,11 +384,17 @@ function initApp() {
         state.shopCategories = Array.isArray(r.shopItems) ? r.shopItems : [];
         if (r.trainees.length > 0) {
           state.currentTrainee = getAssignedTrainee(r.trainees);
-          state.data[state.currentTrainee] = r.progress || {};
-          state.acqData[state.currentTrainee] = r.acqProgress || {};
-          state.shopData[state.currentTrainee] = r.shopProgress || {};
-        }
-        render();
+          return Promise.all([
+            callGAS('getProgress', { traineeId: state.currentTrainee }),
+            callGAS('getAcqProgress', { traineeId: state.currentTrainee }),
+            callGAS('getShopProgress', { traineeId: state.currentTrainee })
+          ]).then(function(r2) {
+            state.data[state.currentTrainee] = r2[0];
+            state.acqData[state.currentTrainee] = r2[1] || {};
+            state.shopData[state.currentTrainee] = r2[2] || {};
+            render();
+          });
+        } else { render(); }
       }).catch(showError);
   }
 }
