@@ -671,15 +671,17 @@ function renderAcqDetail(canEdit) {
     if (isSP) {
       html += '<div style="padding:14px 16px;border-bottom:1px solid var(--border);">';
       html += '<div style="font-size:0.95rem;font-weight:500;margin-bottom:12px;">' + item.itemName + '</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
       [1,2,3].forEach(function(round) {
         const grade = rec['grade' + round] || '';
         const date = rec['date' + round] || '';
-        html += '<div style="margin-bottom:12px;">';
-        html += '<div style="font-size:0.72rem;color:var(--text3);margin-bottom:6px;">' + round + '回目' + (date ? '　' + date : '') + '</div>';
-        html += '<div style="display:flex;gap:10px;">';
+        html += '<div style="display:flex;flex-direction:column;gap:6px;align-items:center;">';
+        html += '<div style="font-size:0.7rem;color:var(--text3);">' + round + '回目</div>';
+        html += '<div style="font-size:0.7rem;color:var(--text3);">' + (date || '—') + '</div>';
+        html += '<div style="display:flex;gap:6px;">';
         if (canEdit) {
           ['A','B'].forEach(function(g) {
-            html += '<button class="grade-btn ' + (grade === g ? gradeColor[g] : '') + '" style="width:48px;height:48px;font-size:1rem;" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',' + round + ',\'' + (grade === g ? '' : g) + '\')">' + g + '</button>';
+            html += '<button class="grade-btn ' + (grade === g ? gradeColor[g] : '') + '" style="width:44px;height:44px;font-size:1rem;" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',' + round + ',\'' + (grade === g ? '' : g) + '\')">' + g + '</button>';
           });
         } else {
           const gc = grade ? 'grade-' + grade : 'grade-none';
@@ -687,7 +689,7 @@ function renderAcqDetail(canEdit) {
         }
         html += '</div></div>';
       });
-      html += '</div>';
+      html += '</div></div>';
     } else {
       html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;align-items:start;padding:10px 16px;border-bottom:1px solid var(--border);gap:8px;">';
       html += '<div style="font-size:0.9rem;font-weight:500;">' + item.itemName + '</div>';
