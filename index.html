@@ -654,8 +654,6 @@ function renderAcqDetail(canEdit) {
   html += '<div class="acq-legend">';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>A：一人で獲得</span>';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>B：フォローあり</span>';
-  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：登録のみ</span>';
-  html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：横で見ていた</span>';
   html += '</div>';
   const acqListAll = Array.isArray(state.acqItems) ? state.acqItems : [];
   const acqList = acqListAll.filter(function(item) {
