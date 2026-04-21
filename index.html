@@ -673,7 +673,10 @@ function renderAcqDetail(canEdit) {
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>C：登録のみ</span>';
   html += '<span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>D：横で見ていた</span>';
   html += '</div>';
-  const acqList = Array.isArray(state.acqItems) ? state.acqItems : [];
+  const traineeCareer = traineeObj ? traineeObj.career : '';
+  const acqList = (Array.isArray(state.acqItems) ? state.acqItems : []).filter(function(item) {
+    return !item.career || item.career === '共通' || item.career === traineeCareer;
+  });
   if (acqList.length === 0) return html + '<div class="loading">獲得項目が登録されていません</div>';
   const gradeColor = { A: 'active-A', B: 'active-B', C: 'active-C', D: 'active-D' };
   // PC：テーブル形式、SP：縦並び
