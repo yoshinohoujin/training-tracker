@@ -1318,10 +1318,40 @@ function setView(v) {
   state.view = v; renderSidebar(); renderMain();
   if (v === 'admin') setTimeout(initDrag, 50);
 }
-function toggleTaught(traineeId,itemId){const rec=getRecord(traineeId,itemId);const value=rec.taughtDate?'':todayStr();rec.taughtDate=value;render();saveField(traineeId,itemId,'taughtDate',value);}
-function toggleRetaught(traineeId,itemId){const rec=getRecord(traineeId,itemId);const value=rec.retaughtDate?'':todayStr();rec.retaughtDate=value;render();saveField(traineeId,itemId,'retaughtDate',value);}
-function updateField(traineeId,itemId,field,value){const rec=getRecord(traineeId,itemId);rec[field]=value;render();saveField(traineeId,itemId,field,value);}
-function saveField(traineeId,itemId,field,value){callGAS('saveProgress',{traineeId,itemId,field,value}).then(function(){showToast('保存しました ✓','success');}).catch(function(e){showToast('保存失敗: '+e.message,'error');});}
+function toggleTaught(traineeId,itemId){
+  const rec=getRecord(traineeId,itemId);
+  const value=rec.taughtDate?'':todayStr();
+  rec.taughtDate=value;
+  render();
+  callGAS('saveProgress',{traineeId,itemId,field:'taughtDate',value,extraField:'grade',extraValue:rec.grade||''})
+    .then(function(){showToast('保存しました ✓','success');})
+    .catch(function(e){showToast('保存失敗: '+e.message,'error');});
+}
+function toggleRetaught(traineeId,itemId){
+  const rec=getRecord(traineeId,itemId);
+  const value=rec.retaughtDate?'':todayStr();
+  rec.retaughtDate=value;
+  render();
+  callGAS('saveProgress',{traineeId,itemId,field:'retaughtDate',value,extraField:'grade2',extraValue:rec.grade2||''})
+    .then(function(){showToast('保存しました ✓','success');})
+    .catch(function(e){showToast('保存失敗: '+e.message,'error');});
+}
+function updateField(traineeId,itemId,field,value){
+  const rec=getRecord(traineeId,itemId);
+  rec[field]=value;
+  render();
+  const extraField=field==='grade'?'taughtDate':field==='grade2'?'retaughtDate':null;
+  const extraValue=extraField?rec[extraField]||'':null;
+  const params=extraField?{traineeId,itemId,field,value,extraField,extraValue}:{traineeId,itemId,field,value};
+  callGAS('saveProgress',params)
+    .then(function(){showToast('保存しました ✓','success');})
+    .catch(function(e){showToast('保存失敗: '+e.message,'error');});
+}
+function saveField(traineeId,itemId,field,value){
+  callGAS('saveProgress',{traineeId,itemId,field,value})
+    .then(function(){showToast('保存しました ✓','success');})
+    .catch(function(e){showToast('保存失敗: '+e.message,'error');});
+}
 function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'success')+' show';clearTimeout(window._toastTimer);window._toastTimer=setTimeout(function(){t.className='toast';},2500);}
 function showError(e){document.getElementById('main').innerHTML='<div class="loading" style="color:var(--red)">エラー: '+(e?e.message:'不明')+'</div>';}
