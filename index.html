@@ -268,7 +268,7 @@ function callGAS(func, params, _retry) {
       if (script.parentNode) script.parentNode.removeChild(script);
       if (!_retry) { callGAS(func, params, true).then(resolve).catch(reject); }
       else { reject(new Error('タイムアウト')); }
-    }, 15000);
+    }, 25000);
     window[callbackName] = function(data) {
       clearTimeout(timer); delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
