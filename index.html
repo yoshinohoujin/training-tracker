@@ -1318,15 +1318,34 @@ function setView(v) {
   state.view = v; renderSidebar(); renderMain();
   if (v === 'admin') setTimeout(initDrag, 50);
 }
+  
 function toggleTaught(traineeId,itemId){
   const rec=getRecord(traineeId,itemId);
   const value=rec.taughtDate?'':todayStr();
   rec.taughtDate=value;
-  render();
   callGAS('saveProgress',{traineeId,itemId,field:'taughtDate',value,extraField:'grade',extraValue:rec.grade||''})
-    .then(function(){showToast('保存しました ✓','success');})
+    .then(function(){render();showToast('保存しました ✓','success');})
     .catch(function(e){showToast('保存失敗: '+e.message,'error');});
 }
+function toggleRetaught(traineeId,itemId){
+  const rec=getRecord(traineeId,itemId);
+  const value=rec.retaughtDate?'':todayStr();
+  rec.retaughtDate=value;
+  callGAS('saveProgress',{traineeId,itemId,field:'retaughtDate',value,extraField:'grade2',extraValue:rec.grade2||''})
+    .then(function(){render();showToast('保存しました ✓','success');})
+    .catch(function(e){showToast('保存失敗: '+e.message,'error');});
+}
+function updateField(traineeId,itemId,field,value){
+  const rec=getRecord(traineeId,itemId);
+  rec[field]=value;
+  const extraField=field==='grade'?'taughtDate':field==='grade2'?'retaughtDate':null;
+  const extraValue=extraField?rec[extraField]||'':null;
+  const params=extraField?{traineeId,itemId,field,value,extraField,extraValue}:{traineeId,itemId,field,value};
+  callGAS('saveProgress',params)
+    .then(function(){render();showToast('保存しました ✓','success');})
+    .catch(function(e){showToast('保存失敗: '+e.message,'error');});
+}
+  
 function toggleRetaught(traineeId,itemId){
   const rec=getRecord(traineeId,itemId);
   const value=rec.retaughtDate?'':todayStr();
