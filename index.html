@@ -680,7 +680,7 @@ function renderAcqDetail(canEdit) {
         html += '<div style="font-size:0.72rem;color:var(--text3);margin-bottom:6px;">' + round + '回目' + (date ? '　' + date : '') + '</div>';
         html += '<div style="display:flex;gap:10px;">';
         if (canEdit) {
-          ['A','B','C','D'].forEach(function(g) {
+          ['A','B'].forEach(function(g) {
             html += '<button class="grade-btn ' + (grade === g ? gradeColor[g] : '') + '" style="width:48px;height:48px;font-size:1rem;" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',' + round + ',\'' + (grade === g ? '' : g) + '\')">' + g + '</button>';
           });
         } else {
@@ -700,7 +700,7 @@ function renderAcqDetail(canEdit) {
         html += '<span style="font-size:0.72rem;color:var(--text3);">' + (date || '—') + '</span>';
         html += '<div style="display:flex;gap:3px;">';
         if (canEdit) {
-          ['A','B','C','D'].forEach(function(g) {
+          ['A','B'].forEach(function(g) {
             html += '<button class="grade-btn ' + (grade === g ? gradeColor[g] : '') + '" onclick="updateAcqGrade(\'' + traineeId + '\',\'' + item.itemId + '\',' + round + ',\'' + (grade === g ? '' : g) + '\')">' + g + '</button>';
           });
         } else {
