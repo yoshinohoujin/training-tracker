@@ -45,6 +45,9 @@
   .sidebar-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
   .sidebar-item.active .sidebar-dot { background: var(--accent); }
   .sidebar-progress { margin-left: auto; font-size: 10px; color: var(--text3); min-width: 36px; text-align: right; }
+  .sidebar-progress-before { display: inline-block; width: 12px; text-align: right; margin-right: 2px; font-size: 10px; color: var(--text3); }
+  .sidebar-progress-slash { font-size: 10px; color: var(--text3); }
+  .sidebar-progress-after { display: inline-block; width: 14px; text-align: right; font-size: 10px; color: var(--text3); }
   .sidebar-item.active .sidebar-progress { color: var(--accent); }
   .main-content { flex: 1; overflow-y: auto; }
   .main { padding: 16px; max-width: 960px; margin: 0 auto; }
@@ -473,7 +476,13 @@ function renderSidebar() {
   el.innerHTML = cats.map(function(cat) {
     const p = getCategoryProgressForTrainee(state.currentTrainee, cat);
     return '<div class="sidebar-item ' + (state.currentCategory === cat.id ? 'active' : '') + '" onclick="selectCategory(\'' + cat.id + '\')">' +
-      '<div class="sidebar-dot"></div><span style="flex:1">' + cat.name + '</span><span class="sidebar-progress">' + p.taught + '/' + p.total + '</span></div>';
+      '<div class="sidebar-dot"></div><span style="flex:1">' + cat.name + '</span>
+      '<div class="sidebar-dot"></div><span style="flex:1">' + cat.name + '</span>' +
+      '<span style="margin-left:auto;display:flex;">' +
+      '<span class="sidebar-progress-before">' + p.taught + '</span>' +
+      '<span class="sidebar-progress-slash">/</span>' +
+      '<span class="sidebar-progress-after">' + p.total + '</span>' +
+      '</span></div>';
   }).join('');
 }
 
