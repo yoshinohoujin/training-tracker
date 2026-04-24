@@ -612,8 +612,8 @@ function renderShopDetail(canEdit) {
         if (item.note) html += '<span class="shop-item-note">' + item.note + '</span>';
         html += '</div>';
         html += '<div class="shop-check-area">';
-        if (rec.date) html += '<span class="shop-date">' + rec.date + '</span>';
         if (canEdit) {
+          if (rec.date) html += '<span class="shop-date">' + rec.date + '</span>';
           html += '<div class="check-box ' + (rec.date ? 'taught-check checked' : '') + '" style="width:30px;height:30px;cursor:pointer;" onclick="toggleShopItem(\'' + traineeId + '\',\'' + item.id + '\')">' + (rec.date ? '✓' : '') + '</div>';
         } else {
           html += '<span style="font-size:0.85rem;color:' + (rec.date ? 'var(--accent)' : 'var(--text3)') + '">' + (rec.date || '—') + '</span>';
