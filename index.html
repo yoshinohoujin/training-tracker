@@ -476,7 +476,6 @@ function renderSidebar() {
   el.innerHTML = cats.map(function(cat) {
     const p = getCategoryProgressForTrainee(state.currentTrainee, cat);
     return '<div class="sidebar-item ' + (state.currentCategory === cat.id ? 'active' : '') + '" onclick="selectCategory(\'' + cat.id + '\')">' +
-      '<div class="sidebar-dot"></div><span style="flex:1">' + cat.name + '</span>
       '<div class="sidebar-dot"></div><span style="flex:1">' + cat.name + '</span>' +
       '<span style="margin-left:auto;display:flex;">' +
       '<span class="sidebar-progress-before">' + p.taught + '</span>' +
