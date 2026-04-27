@@ -295,6 +295,7 @@ function doLogin() {
     .then(function(result) {
       btn.disabled = false; btn.textContent = 'ログイン';
       if (result.success) {
+        result._loginData = { staffId, password };
         state.user = result;
         localStorage.setItem('loginUser', JSON.stringify(result));
         document.getElementById('loginScreen').style.display = 'none';
@@ -1255,7 +1256,7 @@ function renderAdminStaff() {
   html+='<select class="admin-select" id="newStaffRole" onchange="updateTraineeIdHint()"><option value="新スタッフ">新スタッフ</option><option value="トレーナー">トレーナー</option><option value="店長">店長</option><option value="管理職">管理職</option></select>';
   html+='<div style="flex:1;min-width:160px;"><input class="admin-input" id="newStaffTraineeId" placeholder="新人ID" style="width:100%"><div class="admin-hint" id="traineeIdHint">新スタッフ：本人のID / トレーナー・店長：担当する新スタッフのID</div></div>';
   html+='<input class="admin-input" id="newStaffYear" placeholder="入社年度" style="width:100px" type="number"></div>';
-  html+='<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-start">追加</button></div></div>';
+  html+='<button class="admin-btn primary" onclick="doAddStaff()" style="align-self:flex-end">追加</button></div></div>';
   return html;
 }
 
@@ -1339,7 +1340,37 @@ function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'success')+' show';clearTimeout(window._toastTimer);window._toastTimer=setTimeout(function(){t.className='toast';},2500);}
 function showError(e){document.getElementById('main').innerHTML='<div class="loading" style="color:var(--red)">エラー: '+(e?e.message:'不明')+'</div>';}
 
-(function(){const saved=localStorage.getItem('loginUser');if(saved){try{state.user=JSON.parse(saved);document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';initApp();}catch(e){localStorage.removeItem('loginUser');}}})();
+(function(){
+  const saved=localStorage.getItem('loginUser');
+  if(saved){
+    try{
+      const savedUser=JSON.parse(saved);
+      const loginData=savedUser._loginData;
+      if(!loginData){localStorage.removeItem('loginUser');return;}
+      document.getElementById('appScreen').style.display='block';
+      document.getElementById('main').innerHTML='<div class="loading"><div class="spinner"></div>読み込み中...</div>';
+      callGAS('login',{staffId:loginData.staffId,password:loginData.password})
+        .then(function(result){
+          if(result.success){
+            result._loginData=loginData;
+            state.user=result;
+            localStorage.setItem('loginUser',JSON.stringify(result));
+            initApp();
+          } else {
+            localStorage.removeItem('loginUser');
+            document.getElementById('appScreen').style.display='none';
+            document.getElementById('loginScreen').style.display='flex';
+            document.getElementById('loginError').textContent=result.message||'アカウントが無効です';
+          }
+        })
+        .catch(function(){
+          state.user=savedUser;
+          delete state.user._loginData;
+          initApp();
+        });
+    }catch(e){localStorage.removeItem('loginUser');}
+  }
+})();
 </script>
 </body>
 </html>
