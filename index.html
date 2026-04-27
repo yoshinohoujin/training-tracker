@@ -356,8 +356,15 @@ function initApp() {
   if (role === '新スタッフ') {
     state.trainees = [{ traineeId: state.user.traineeId, name: state.user.name, career: career }];
     state.currentTrainee = state.user.traineeId;
-    callGAS('getInitialDataNew', { traineeId: state.user.traineeId, career: career })
+    callGAS('getInitialDataNew', { traineeId: state.user.traineeId, career: career, staffId: state.user.staffId })
       .then(function(r) {
+        if (r && r.disabled) {
+          localStorage.removeItem('loginUser');
+          document.getElementById('appScreen').style.display = 'none';
+          document.getElementById('loginScreen').style.display = 'flex';
+          document.getElementById('loginError').textContent = 'このアカウントは無効です';
+          return;
+        }
         state.categories = r.categories; if (r.categories.length > 0) state.currentCategory = r.categories[0].id;
         state.data[state.user.traineeId] = r.progress;
         state.acqItems = Array.isArray(r.acqItems) ? r.acqItems : [];
@@ -367,8 +374,15 @@ function initApp() {
         render();
       }).catch(showError);
   } else if (role === '管理職' || role === '店長') {
-    callGAS('getInitialDataManager', { career: career })
+    callGAS('getInitialDataManager', { career: career, staffId: state.user.staffId })
       .then(function(r) {
+        if (r && r.disabled) {
+          localStorage.removeItem('loginUser');
+          document.getElementById('appScreen').style.display = 'none';
+          document.getElementById('loginScreen').style.display = 'flex';
+          document.getElementById('loginError').textContent = 'このアカウントは無効です';
+          return;
+        }
         state.categories = r.categories; if (r.categories.length > 0) state.currentCategory = r.categories[0].id;
         state.trainees = r.trainees; state.data = r.allProgress; state.staffList = r.staffList;
         state.acqItems = Array.isArray(r.acqItems) ? r.acqItems : [];
@@ -379,8 +393,15 @@ function initApp() {
         render();
       }).catch(showError);
   } else {
-    callGAS('getInitialDataTrainer', { traineeId: '', career: career })
+    callGAS('getInitialDataTrainer', { traineeId: '', career: career, staffId: state.user.staffId })
       .then(function(r) {
+        if (r && r.disabled) {
+          localStorage.removeItem('loginUser');
+          document.getElementById('appScreen').style.display = 'none';
+          document.getElementById('loginScreen').style.display = 'flex';
+          document.getElementById('loginError').textContent = 'このアカウントは無効です';
+          return;
+        }
         state.categories = r.categories; if (r.categories.length > 0) state.currentCategory = r.categories[0].id;
         state.trainees = r.trainees; state.staffList = r.staffList;
         state.acqItems = Array.isArray(r.acqItems) ? r.acqItems : [];
