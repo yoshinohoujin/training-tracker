@@ -295,7 +295,6 @@ function doLogin() {
     .then(function(result) {
       btn.disabled = false; btn.textContent = 'ログイン';
       if (result.success) {
-        result._loginData = { staffId, password };
         state.user = result;
         localStorage.setItem('loginUser', JSON.stringify(result));
         document.getElementById('loginScreen').style.display = 'none';
@@ -1340,37 +1339,7 @@ function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'success')+' show';clearTimeout(window._toastTimer);window._toastTimer=setTimeout(function(){t.className='toast';},2500);}
 function showError(e){document.getElementById('main').innerHTML='<div class="loading" style="color:var(--red)">エラー: '+(e?e.message:'不明')+'</div>';}
 
-(function(){
-  const saved=localStorage.getItem('loginUser');
-  if(saved){
-    try{
-      const savedUser=JSON.parse(saved);
-      const loginData=savedUser._loginData;
-      if(!loginData){localStorage.removeItem('loginUser');return;}
-      document.getElementById('appScreen').style.display='block';
-      document.getElementById('main').innerHTML='<div class="loading"><div class="spinner"></div>読み込み中...</div>';
-      callGAS('login',{staffId:loginData.staffId,password:loginData.password})
-        .then(function(result){
-          if(result.success){
-            result._loginData=loginData;
-            state.user=result;
-            localStorage.setItem('loginUser',JSON.stringify(result));
-            initApp();
-          } else {
-            localStorage.removeItem('loginUser');
-            document.getElementById('appScreen').style.display='none';
-            document.getElementById('loginScreen').style.display='flex';
-            document.getElementById('loginError').textContent=result.message||'アカウントが無効です';
-          }
-        })
-        .catch(function(){
-          state.user=savedUser;
-          delete state.user._loginData;
-          initApp();
-        });
-    }catch(e){localStorage.removeItem('loginUser');}
-  }
-})();
+ (function(){const saved=localStorage.getItem('loginUser');if(saved){try{state.user=JSON.parse(saved);document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';initApp();}catch(e){localStorage.removeItem('loginUser');}}})();
 </script>
 </body>
 </html>
