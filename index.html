@@ -4,6 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="吉野聡 / タカラコーポレーション">
+<!-- 企画・制作・開発：吉野聡 / タカラコーポレーション -->
 <title>新人進捗管理</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -1361,6 +1363,8 @@ function showToast(msg,type){const t=document.getElementById('toast');t.textCont
 function showError(e){document.getElementById('main').innerHTML='<div class="loading" style="color:var(--red)">エラー: '+(e?e.message:'不明')+'</div>';}
 
  (function(){const saved=localStorage.getItem('loginUser');if(saved){try{state.user=JSON.parse(saved);document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';initApp();}catch(e){localStorage.removeItem('loginUser');}}})();
+console.log('%c新人進捗管理システム', 'font-size:16px;font-weight:bold;color:#2563eb;');
+console.log('%c企画・制作・開発：吉野聡 / タカラコーポレーション', 'color:#8b96b8;');
 </script>
 </body>
 </html>
